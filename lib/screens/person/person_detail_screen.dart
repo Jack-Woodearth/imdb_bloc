@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
 import 'package:imdb_bloc/cubit/user_fav_people_cubit.dart';
+import 'package:imdb_bloc/screens/people_screen/person_list_screen.dart';
 import 'package:imdb_bloc/screens/person/cubit/person_photos_cubit.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -139,10 +140,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
     try {
       photos = (_personResult?.person?.basicPhotos ?? []);
 
-      // debugPrint('_photos=$_photos');
-
       if (photos.isNotEmpty) {
-        // _photosCtrl.photos.value = photos;//todo
         read.set(photos);
         return;
       }
@@ -349,17 +347,8 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                                 onTap: () {
                                                   if (!isBlank(
                                                       e.spouse?.name?.id)) {
-                                                    //todo
-                                                    // Get.to(
-                                                    //     () =>
-                                                    //         PersonDetailScreen(
-                                                    //             pid: e
-                                                    //                     .spouse
-                                                    //                     ?.name
-                                                    //                     ?.id ??
-                                                    //                 ""),
-                                                    //     preventDuplicates:
-                                                    //         false);
+                                                    context.push(
+                                                        '/person/${e.spouse?.name?.id}');
                                                   }
                                                 },
                                                 child: Column(
@@ -398,11 +387,8 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                         .map((e) => InkWell(
                                               onTap: () {
                                                 if (!isBlank(e.id)) {
-                                                  //todo
-                                                  // Get.to(
-                                                  //     () => PersonDetailScreen(
-                                                  //         pid: e.id ?? ""),
-                                                  //     preventDuplicates: false);
+                                                  context
+                                                      .push('/person/${e.id}');
                                                 }
                                               },
                                               child: Text(
@@ -534,11 +520,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
           children: [
             InkWell(
               onTap: () {
-                try {
-                  // Get.to(() => PollScreen(pollId: e.pollId ?? ''));//todo
-                } catch (e) {
-                  // print(e);
-                }
+                context.push('/poll/${e.pollId ?? ''}');
               },
               child: ListTile(
                 leading: ClipRRect(
@@ -571,11 +553,9 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
         padding: const EdgeInsets.only(left: 8.0, bottom: 2),
         child: InkWell(
           onTap: () async {
-            //todo
-            // Get.to(() {
-            //   // return PersonListScreenLazy(title: '${e.title}', listUrl: e.url!);
-            //   return NewListScreen(listUrl: e.listUrl!);
-            // });
+            context.push('/people_list_lazy',
+                extra: PeopleListScreenLazyData(
+                    title: '${e.listName}', listUrl: e.listUrl!));
           },
           child: ListTile(
             leading: ClipRRect(
@@ -653,12 +633,12 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                 title: 'Worked with',
                 label: '${snapshot.data!.length}',
                 onTap: () {
-                  //todo
-                  //   Get.to(() => PersonListScreen(
-                  //       count: snapshot.data!.length,
-                  //       ids: snapshot.data!,
-                  //       title:
-                  //           'People worked with ${_personResult?.person?.name}'));
+                  context.push('/people_list',
+                      extra: PeopleListScreenData(
+                          count: snapshot.data!.length,
+                          ids: snapshot.data!,
+                          title:
+                              'People worked with ${_personResult?.person?.name}'));
                 }),
             SizedBox(
               height: 300,
@@ -776,9 +756,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                       }
                       return InkWell(
                         onTap: () {
-                          //todo
-                          // Get.to(MovieFullDetailScreenLazyLoad(
-                          //     mid: _awardsMovies[index]!.id));
+                          context.push('/title/${_awardsMovies[index]!.id}');
                         },
                         child: Card(
                           clipBehavior: Clip.hardEdge,
@@ -928,17 +906,11 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
         TitleAndSeeAll(
           title: 'Filmography',
           label: '${_filmographyIds.length}',
-          onTap: () {
-            //todo
-            // Get.to(
-            //   () {
-            //     var filmographyIds = _filmographyIds;
-            //     var name = _personResult?.person?.name;
-
-            //     return NewLongMovieListLazyWithIds(
-            //         ids: filmographyIds, title: name);
-            //   },
-            // );
+          onTap: () async {
+            var filmographyIds = _filmographyIds.toList();
+            var name = _personResult?.person?.name ?? '';
+            await gotoMoviesListScreenLazyWithIds(
+                filmographyIds, name, context);
           },
         ),
         SizedBox(
@@ -1007,39 +979,44 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(5.0),
-                    child: Container(
-                        color: false //todo
-                            ? Theme.of(context).cardColor
-                            : ImdbColors.themeYellow,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(false //todo
-                                  ? Icons.add
-                                  : Icons.remove),
-                              const SizedBox(
-                                width: 20,
+                    child: BlocBuilder<UserFavPeopleCubit, UserFavPeopleState>(
+                      builder: (context, state) {
+                        return Container(
+                            color: !state.ids.contains(widget.pid)
+                                ? Theme.of(context).cardColor
+                                : ImdbColors.themeYellow,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(!state.ids.contains(widget.pid)
+                                      ? Icons.add
+                                      : Icons.remove),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  BlocBuilder<UserFavPeopleCubit,
+                                      UserFavPeopleState>(
+                                    builder: (context, state) {
+                                      return Text(
+                                        '${!state.ids.contains(widget.pid) ? 'Add to' : 'Remove from'} favorites',
+                                        style: TextStyle(
+                                            color:
+                                                !state.ids.contains(widget.pid)
+                                                    ? Theme.of(context)
+                                                        .textTheme
+                                                        .bodyLarge
+                                                        ?.color
+                                                    : Colors.red),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                              BlocBuilder<UserFavPeopleCubit,
-                                  UserFavPeopleState>(
-                                builder: (context, state) {
-                                  return Text(
-                                    '${!state.ids.contains(widget.pid) ? 'Add to' : 'Remove from'} favorites',
-                                    style: TextStyle(
-                                        color: !state.ids.contains(widget.pid)
-                                            ? Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.color
-                                            : Colors.red),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        )),
+                            ));
+                      },
+                    ),
                   ))),
         ),
         const SizedBox(
@@ -1079,7 +1056,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
     } catch (e) {}
     return InkWell(
       onTap: () {
-        // Get.to(() => PersonFullBioScreen(pid: widget.pid));//todo
+        context.push('/person_bio/${widget.pid}');
       },
       child: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -1112,22 +1089,23 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                   ..onTap = () async {
                                     debugPrint('birth year tap');
                                     EasyLoading.show();
-                                    var birthDatePeopleResp =
-                                        await getPeopleFromBirthYearApi(
-                                            split[0]);
-                                    //todo
-                                    // Get.to(() => PersonListScreen(
-                                    //       title: 'People born in ${split[0]}',
-                                    //       ids: birthDatePeopleResp.ids,
-                                    //       count: birthDatePeopleResp.count,
-                                    //       onScrollReallyEnd: (ids) async {
-                                    //         var newResp =
-                                    //             await getPeopleFromBirthYearApi(
-                                    //                 split[0],
-                                    //                 start: ids.length + 1);
-                                    //         ids.addAll(newResp.ids);
-                                    //       },
-                                    //     ));
+                                    getPeopleFromBirthYearApi(split[0])
+                                        .then((birthDatePeopleResp) {
+                                      context.pushNamed('/people_list',
+                                          extra: PeopleListScreenData(
+                                            title: 'People born in ${split[0]}',
+                                            ids: birthDatePeopleResp.ids,
+                                            count: birthDatePeopleResp.count,
+                                            onScrollReallyEnd: (ids) async {
+                                              var newResp =
+                                                  await getPeopleFromBirthYearApi(
+                                                      split[0],
+                                                      start: ids.length + 1);
+                                              ids.addAll(newResp.ids);
+                                            },
+                                          ));
+                                    });
+
                                     EasyLoading.dismiss();
                                   }),
                             const TextSpan(text: ' - '),
@@ -1136,17 +1114,8 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                 style: const TextStyle(color: Colors.blue),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () async {
-                                    EasyLoading.show();
-                                    debugPrint('birth date tap');
-                                    var resp = await getPeopleFromBirthDateApi(
-                                        birthDate);
-                                    EasyLoading.dismiss();
-                                    var pids = resp.ids;
-                                    //todo
-                                    // Get.to(() => PeopleBornList(
-                                    //     birthDate: birthDate,
-                                    //     pids: pids,
-                                    //     resp: resp));
+                                    await goToPeopleBornOnThisDateList(
+                                        birthDate, context);
                                   }),
                             if (!isBlank(_personResult?.person?.birthPlace))
                               const TextSpan(text: ' in '),
@@ -1156,28 +1125,10 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                   style: const TextStyle(color: Colors.blue),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () async {
-                                      EasyLoading.show();
-                                      debugPrint('birth place tap');
-                                      var resp = await getPeopleFromBirthPlaceApi(
-                                          '${_personResult?.person?.birthPlace}');
-                                      EasyLoading.dismiss();
-                                      var pids = resp.ids;
-                                      //todo
-                                      // Get.to(() => PersonListScreen(
-                                      //       title:
-                                      //           'People born in ${_personResult?.person?.birthPlace}',
-                                      //       ids: pids,
-                                      //       count: resp.count,
-                                      //       onScrollReallyEnd: (ids) async {
-                                      //         print(
-                                      //             'PersonListScreen onScrollReallyEnd');
-                                      //         var newPids =
-                                      //             await getPeopleFromBirthPlaceApi(
-                                      //                 '${_personResult?.person?.birthPlace}',
-                                      //                 start: ids.length + 1);
-                                      //         ids.addAll(newPids.ids);
-                                      //       },
-                                      //     ));
+                                      await goToPeopleBornInThisYearList(
+                                          _personResult?.person?.birthPlace ??
+                                              '',
+                                          context);
                                     }),
                           ])),
                           if (!isBlank((_personResult?.person?.deathDate)))
@@ -1275,15 +1226,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
             imageViewType: ImageViewType.person,
             subjectId: widget.pid,
             title: '${_personResult?.person?.name}'));
-    //todo
-    // pushRoute(
-    //     context: context,
-    //     screen: AllImagesScreen(
-    //       data: AllImagesScreenData(
-    //           imageViewType: ImageViewType.person,
-    //           subjectId: widget.pid,
-    //           title: '${_personResult?.person?.name}'),
-    //     ));
   }
 
   Future<void> _handleShowCommonMovies(

@@ -35,6 +35,10 @@ bool isBlank(String? s) {
   return s == null || s == '';
 }
 
+bool notBlank(String? s) {
+  return s != null && s != '';
+}
+
 Future<String> encryptPwd(String pwd) async {
   final doc = AppDocPath().documentDirectory;
   final f = File(path.join(doc.path, 'pub.pem'));

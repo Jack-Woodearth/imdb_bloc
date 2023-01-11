@@ -1,8 +1,8 @@
 part of 'user_list_screen_filter_cubit.dart';
 
 @immutable
-abstract class UserListState {
-  final filters = <String, List<String>>{
+class UserListState {
+  static final filters = <String, List<String>>{
     "Sort By": ["Date Modified", "Alphabetical"],
     "List Type": ["All", "Title", "Name"]
   };
@@ -12,72 +12,44 @@ abstract class UserListState {
   final int pageIndex;
   final Map<String, String> currentFilters;
   final bool hasNextPage;
-  UserListState(
+  final List<String> checkedUrls;
+  const UserListState(
       {required this.hasNextPage,
+      required this.checkedUrls,
       required this.userLists,
       required this.listUrls,
       required this.pages,
       required this.currentFilters,
       required this.pageIndex});
 
-  UserListState copyWith({
-    List<ListResult>? userLists,
-    List<String>? listUrls,
-    List<List<String>>? pages,
-    int? pageIndex,
-    Map<String, String>? currentFilters,
-    bool? hasNextPage,
-  });
-}
-
-class UserListScreenFilterInitial extends UserListState {
-  UserListScreenFilterInitial(
-      {super.userLists = const [],
-      super.hasNextPage = false,
-      super.listUrls = const [],
-      super.pages = const [],
-      super.currentFilters = const {
-        "Sort By": "Date Modified",
-        "List Type": 'All'
-      },
-      super.pageIndex = 0});
-
-  @override
   UserListState copyWith(
       {List<ListResult>? userLists,
       List<String>? listUrls,
       List<List<String>>? pages,
       int? pageIndex,
+      Map<String, String>? currentFilters,
       bool? hasNextPage,
-      Map<String, String>? currentFilters}) {
-    return UserListScreenFilterInitial();
-  }
-}
-
-class UserListScreenFilterNormal extends UserListState {
-  UserListScreenFilterNormal(
-      {required super.userLists,
-      required super.hasNextPage,
-      required super.listUrls,
-      required super.pages,
-      required super.currentFilters,
-      required super.pageIndex});
-
-  @override
-  UserListState copyWith({
-    List<ListResult>? userLists,
-    List<String>? listUrls,
-    List<List<String>>? pages,
-    int? pageIndex,
-    Map<String, String>? currentFilters,
-    bool? hasNextPage,
-  }) {
-    return UserListScreenFilterNormal(
+      List<String>? checkedUrls}) {
+    return UserListState(
         userLists: userLists ?? this.userLists,
         listUrls: listUrls ?? this.listUrls,
         pages: pages ?? this.pages,
         pageIndex: pageIndex ?? this.pageIndex,
         currentFilters: currentFilters ?? this.currentFilters,
-        hasNextPage: hasNextPage ?? this.hasNextPage);
+        hasNextPage: hasNextPage ?? this.hasNextPage,
+        checkedUrls: checkedUrls ?? this.checkedUrls);
   }
+}
+
+class UserListInitialState extends UserListState {
+  UserListInitialState()
+      : super(
+            userLists: [],
+            listUrls: [],
+            pages: [],
+            pageIndex: 0,
+            currentFilters: UserListState.filters
+                .map((key, value) => MapEntry(key, value.first)),
+            hasNextPage: false,
+            checkedUrls: []);
 }

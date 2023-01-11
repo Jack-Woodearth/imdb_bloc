@@ -16,3 +16,13 @@ List<T> firstNOfList<T>(List<T> source, int size) {
   }
   return source.sublist(0, min(size, source.length));
 }
+
+///source will be modified!!!
+List<T> extractFirstNOfList<T>(List<T> source, int size) {
+  assert(size > 0);
+  var list = firstNOfList(source, size);
+  for (var i = 0; i < list.length && i < source.length; i++) {
+    source.removeAt(i);
+  }
+  return list;
+}

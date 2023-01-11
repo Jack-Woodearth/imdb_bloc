@@ -27,15 +27,21 @@ class MoviesListScreenData {
   final bool showFilters;
   final ListResult? listResult;
   final NewMovieListRespResult newMovieListRespResult;
+  final Function()? onScrollEnd;
+
   MoviesListScreenData(
       {this.listResult,
       required this.title,
       required this.newMovieListRespResult,
-      this.showFilters = true});
+      this.showFilters = true,
+      this.onScrollEnd});
 }
 
 class MoviesListScreen extends StatefulWidget {
-  const MoviesListScreen({super.key, required this.data});
+  const MoviesListScreen({
+    super.key,
+    required this.data,
+  });
   final MoviesListScreenData data;
   @override
   State<MoviesListScreen> createState() => _MoviesListScreenState();
@@ -141,12 +147,20 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
                         });
                       }
                     }
-                    if (widget.data.newMovieListRespResult.next == null) {
-                      widget.data.newMovieListRespResult.count =
-                          widget.data.newMovieListRespResult.movies?.length;
-                      dp('widget.data.newMovieListRespResult.count =${widget.data.newMovieListRespResult.count}');
+                    if (widget.data.onScrollEnd != null) {
+                      await widget.data.onScrollEnd!();
+                    }
+                    if (widget.data.newMovieListRespResult.movies?.length ==
+                        widget.data.newMovieListRespResult.count) {
                       _enablePullUp = false;
                     }
+                    // if (widget.data.newMovieListRespResult.next == null) {
+                    //   widget.data.newMovieListRespResult.count =
+                    //       widget.data.newMovieListRespResult.movies?.length;
+                    //   dp('widget.data.newMovieListRespResult.count =${widget.data.newMovieListRespResult.count}');
+                    //   _enablePullUp = false;
+                    // }
+
                     setState(() {});
                     //todo lists page
                     _refreshController.loadComplete();
@@ -195,9 +209,8 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
                                                     ?.map((e) =>
                                                         (e?.genres ?? 'Other')
                                                             .split(', '))
-                                                    .reduce((value, element) =>
-                                                        element.toList()
-                                                          ..addAll(value))
+                                                    .expand(
+                                                        (element) => element)
                                                     .toSet()
                                                     .toList() ??
                                                 []

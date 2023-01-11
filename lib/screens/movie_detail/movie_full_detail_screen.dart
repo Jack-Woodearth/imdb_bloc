@@ -7,6 +7,7 @@ import 'package:imdb_bloc/apis/apis.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
 import 'package:imdb_bloc/cubit/user_fav_people_cubit.dart';
 import 'package:imdb_bloc/enums/enums.dart';
+import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
 import 'package:imdb_bloc/screens/all_images/all_images.dart';
 import 'package:imdb_bloc/screens/movies_list/movies_list.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
@@ -293,19 +294,6 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
         [];
   }
 
-  // MoreFromResult? _moreFromResult;
-  // Future<List<MoreFromResult>> _getMoreFrom() async {
-  //   var tmp = await getMoreFromApi(widget.movieBean.id!);
-  //   // _moreFromCtrl.moreFrom.value = tmp; //todo
-  //   return tmp;
-  // }
-
-  // MovieRelatedListsPolls? _movieRelatedListsPolls;
-  // Future<MovieRelatedListsPolls?> _getRelatedListsPolls() async {
-  //   var tmp = await getMovieRelatedListsPollsApi(widget.movieBean.id!);
-  //   // _relatedListsPollsCtrl.obj.value = tmp; //todo
-  //   return tmp;
-  // }
   late final recoms = widget.movieBean.recommendations
           ?.map((e) => MovieBean(
                 title: e.title,
@@ -316,9 +304,6 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
       [];
   @override
   Widget build(BuildContext context) {
-    // var recoms = _getRecoms();
-    // var _moreFromResult = _data?.moreFromResult;
-    // var _movieRelatedListsPolls = _data?.movieRelatedListsPolls;
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.movieBean.title} '),
@@ -354,11 +339,11 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
             TitleAndSeeAll(
                 title: 'Cast',
                 onTap: () {
-                  //todo
-                  //   Get.to(() => AllCastScreen(
-                  //       contentType: widget.movieBean.contentType,
-                  //       mid: widget.movieBean.id!,
-                  //       title: widget.movieBean.title ?? ''));
+                  context.push('/all_cast',
+                      extra: AllCastScreenData(
+                          contentType: widget.movieBean.contentType,
+                          mid: widget.movieBean.id!,
+                          title: widget.movieBean.title ?? ''));
                 }),
 
             if (widget.movieBean.topCast != null) (_buildCastListView()),
@@ -423,7 +408,7 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
               ),
             ),
 
-            _MoreFromSliverList(movieBean: widget.movieBean), //todo
+            _MoreFromSliverList(movieBean: widget.movieBean),
             FutureBuilder(
               future: getMovieRelatedListsPollsApi(widget.movieBean.id!),
               builder: (BuildContext context,
@@ -438,16 +423,14 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
                   ],
 
                   // user lists
-                  if (snapshot.data?.userLists?.isNotEmpty == true) //todo
-                    ...[
+                  if (snapshot.data?.userLists?.isNotEmpty == true) ...[
                     const TitleWithStartingYellowDivider(
                       title: 'User lists',
                     ),
                     _buildListsSliverList(snapshot.data?.userLists ?? [])
                   ],
 
-                  if (snapshot.data?.userPolls?.isNotEmpty == true) //todo
-                    ...[
+                  if (snapshot.data?.userPolls?.isNotEmpty == true) ...[
                     const TitleWithStartingYellowDivider(
                       title: 'User polls',
                     ),
@@ -495,13 +478,11 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
   SliverList _buildUserPolls(AsyncSnapshot<MovieRelatedListsPolls?> snapshot) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(((context, index) {
-        UserPolls userPoll = snapshot.data!.userPolls![index]; //todo
+        UserPolls userPoll = snapshot.data!.userPolls![index];
         return Column(
           children: [
             InkWell(
               onTap: () {
-                //todo
-                // Get.to(() => PollScreen(pollId: userPoll.pollId!));
                 context.push('/poll/${userPoll.pollId ?? ''}');
               },
               child: ListTile(
@@ -519,7 +500,7 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
             const Divider(),
           ],
         );
-      }), childCount: snapshot.data?.userPolls?.length ?? 0), //todo
+      }), childCount: snapshot.data?.userPolls?.length ?? 0),
     );
   }
 
@@ -584,8 +565,7 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
           var person = widget.movieBean.topCast![index];
           return InkWell(
             onTap: () {
-              //todo
-              // Get.to(() => PersonDetailScreen(pid: person.id!));
+              context.push('/person/${person.id!}');
             },
             child: SizedBox(
               width: 150,
@@ -717,17 +697,15 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
           const Divider(),
           InkWell(
             onTap: () {
-              //todo
-              // Get.to(() => AllCastScreen(
-              //     contentType: widget.movieBean.contentType,
-              //     mid: widget.movieBean.id!,
-              //     title: widget.movieBean.title!));
+              context.push('/all_cast',
+                  extra: AllCastScreenData(
+                      contentType: widget.movieBean.contentType,
+                      mid: widget.movieBean.id!,
+                      title: widget.movieBean.title!));
             },
             child: Row(
               children: const [
                 SmallTitleText(title: 'All cast & crew'),
-
-                // Text(movieBean.writers!.map((e) => e.name).join(', '))
               ],
             ),
           ),
@@ -746,10 +724,7 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
             actions: [
               CupertinoActionSheetAction(
                 onPressed: () {
-                  //todo
-                  // Get.to(() => SelectListScreen(
-                  //       subjectId: widget.movieBean.id!,
-                  //     ));
+                  context.push('/select_list/${widget.movieBean.id!}');
                 },
                 child: const Text('Add to List'),
               ),
@@ -828,12 +803,6 @@ class __MoreFromSliverListState extends State<_MoreFromSliverList> {
                   GoRouter.of(context).pushNamed('/movies_list',
                       extra: MoviesListScreenData(
                           title: title, newMovieListRespResult: mf.works!));
-                  //todo
-                  // Get.to(() => NewLongMovieList(
-                  //       title: title,
-                  //       newMovieListRespResult: mf.works!,
-                  //       showFilters: false,
-                  //     ));
                 }
               }),
           if (mf.works?.movies?.isNotEmpty == true)

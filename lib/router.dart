@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/apis/apis.dart';
+import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
+import 'package:imdb_bloc/screens/all_cast/cast_episodes_credits_screen.dart';
 import 'package:imdb_bloc/screens/all_images/all_images.dart';
 import 'package:imdb_bloc/screens/home/home_screen.dart';
 import 'package:imdb_bloc/screens/movie_detail/movie_details_screen_lazyload.dart';
 import 'package:imdb_bloc/screens/movie_detail/plot/plot_screen.dart';
 import 'package:imdb_bloc/screens/movie_detail/rate_movie_screen.dart';
 import 'package:imdb_bloc/screens/movies_list/movies_list.dart';
+import 'package:imdb_bloc/screens/people_screen/person_list_screen.dart';
 import 'package:imdb_bloc/screens/person/person_detail_screen.dart';
+import 'package:imdb_bloc/screens/person/person_full_bio_screen.dart';
 import 'package:imdb_bloc/screens/poll/poll_screen.dart';
 import 'package:imdb_bloc/screens/settings/settings_home.dart';
 import 'package:imdb_bloc/screens/signin/imdb_signin.dart';
+import 'package:imdb_bloc/screens/user_lists/add_list.dart';
+import 'package:imdb_bloc/screens/user_lists/select_list.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 
 import 'beans/details.dart';
@@ -86,6 +92,15 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/person_bio/:id',
+      name: '/person_bio/:id',
+      builder: (BuildContext context, GoRouterState state) {
+        return PersonFullBioScreen(
+          pid: state.params['id']!,
+        );
+      },
+    ),
+    GoRoute(
       path: '/settings',
       builder: (BuildContext context, GoRouterState state) {
         return const SettingsHomeScreen();
@@ -132,6 +147,64 @@ final GoRouter router = GoRouter(
         // MoviesListScreenData data = state.extra as MoviesListScreenData;
         return PollScreen(
           pollId: state.params['id']!,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/cast_episodes_credits',
+      name: '/cast_episodes_credits',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return CastEpisodesCreditsScreen(
+          data: state.extra as CastEpisodesCreditsScreenData,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/all_cast',
+      name: '/all_cast',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return AllCastScreen(
+          data: state.extra as AllCastScreenData,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/people_list_lazy',
+      name: '/people_list_lazy',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return PeopleListScreenLazy(
+          data: state.extra as PeopleListScreenLazyData,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/people_list',
+      name: '/people_list',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return PeopleListScreen(
+          data: state.extra as PeopleListScreenData,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/add_list',
+      name: '/add_list',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return const AddListScreen();
+      },
+    ),
+    GoRoute(
+      path: '/select_list/:subjectId',
+      name: '/select_list/:subjectId',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return SelectListScreen(
+          subjectId: state.params['subjectId']!,
         );
       },
     ),

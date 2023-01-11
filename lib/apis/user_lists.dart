@@ -38,7 +38,7 @@ Future<ListResult?> addUserListApi(
     'is_public': isPublic,
     'is_people_list': isPeopleList
   };
-  print(data2);
+  // print(data2);
   var response = await MyDio().dio.post(path, data: data2);
   if (response.statusCode == 200 && response.data['code'] == 200) {
     return ListResult.fromJson(response.data['result']);
@@ -226,24 +226,22 @@ Future<void> getUserLists(BuildContext context) async {
     return;
   }
   if (!context.read<UserCubit>().state.isLogin) {
-    print('!context.read<UserCubit>().state.isLogin');
     return;
   }
   var uid = await getUid();
 
   if (uid == null) {
-    print('uid == null');
     return;
   }
   var list = await getUserListsApi(uid);
-  print('da54sd564a56d4a56d');
-  print(list.length);
-  cubit.setState(UserListScreenFilterNormal(
+  var details = await batchGetListsDetails(list);
+  cubit.setState(UserListState(
       listUrls: list,
       pageIndex: 0,
       hasNextPage: true,
       pages: splitList(list, 7),
-      currentFilters: const {},
-      userLists: const []));
+      currentFilters: UserListInitialState().currentFilters,
+      userLists: details,
+      checkedUrls: const []));
   return;
 }
