@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
 import 'package:imdb_bloc/cubit/user_fav_people_cubit.dart';
+import 'package:imdb_bloc/screens/movies_list/MoviesListScreenLazyWithIds.dart';
 import 'package:imdb_bloc/screens/people_screen/person_list_screen.dart';
 import 'package:imdb_bloc/screens/person/cubit/person_photos_cubit.dart';
+import 'package:imdb_bloc/widgets/scaffold_with_loading_mask.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
@@ -84,7 +86,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
     if (mounted) {
       setState(() {});
     }
-    _getPhotos();
     await Future.wait(
       [
         _getFilmography(),
@@ -132,23 +133,20 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
     _filmographyIds = _filmographyIds.toSet().toList();
   }
 
-  Future<void> _getPhotos() async {
-    var read = context.read<PersonPhotosCubit>();
-
+  Future<List<String>> _getPhotos() async {
     var photos = <String>[];
 
     try {
       photos = (_personResult?.person?.basicPhotos ?? []);
 
       if (photos.isNotEmpty) {
-        read.set(photos);
-        return;
+        return photos;
       }
     } catch (e) {}
 
     var res = await getPicsApi(widget.pid);
     photos = res.map((e) => e.photoUrl ?? '').toList();
-    read.set(photos);
+    return photos;
   }
 
   Future<List<String>> _getRelatedGalleries() async {
@@ -184,6 +182,19 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        var personPhotosCubit = PersonPhotosCubit();
+        _getPhotos().then((value) => personPhotosCubit.set(value));
+        return personPhotosCubit;
+      },
+      child: Builder(builder: (context) {
+        return ScaffoldWithLoadingMask(child: _buildScaffold(context));
+      }),
+    );
+  }
+
+  Scaffold _buildScaffold(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_personResult?.person?.name ?? 'Person detail'),
@@ -197,9 +208,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                     actions: [
                       CupertinoActionSheetAction(
                           onPressed: () {
-                            //todo
-                            // Get.to(
-                            //     () => SelectListScreen(subjectId: widget.pid));
+                            context.push('/select_list/${widget.pid}');
                           },
                           child: const Text('Add to a list'))
                     ],
@@ -458,7 +467,8 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                               ),
                             ),
                           _buildUserLists(
-                              _personResult?.person?.editorialLists ?? []),
+                              _personResult?.person?.editorialLists ?? [],
+                              context),
                           //userLists
                           if (_personResult?.person?.userLists?.isNotEmpty ==
                               true)
@@ -468,7 +478,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                               ),
                             ),
                           _buildUserLists(
-                              _personResult?.person?.userLists ?? []),
+                              _personResult?.person?.userLists ?? [], context),
                           if (_personResult?.person?.userPolls?.isNotEmpty ==
                               true)
                             const SliverToBoxAdapter(
@@ -545,7 +555,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
     }), childCount: (_personResult?.person?.userPolls ?? []).length));
   }
 
-  SliverList _buildUserLists(List<RelatedLists> lists) {
+  SliverList _buildUserLists(List<RelatedLists> lists, BuildContext context) {
     return SliverList(
         delegate: SliverChildBuilderDelegate(((context, index) {
       var e = lists[index];
@@ -553,9 +563,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
         padding: const EdgeInsets.only(left: 8.0, bottom: 2),
         child: InkWell(
           onTap: () async {
-            context.push('/people_list_lazy',
-                extra: PeopleListScreenLazyData(
-                    title: '${e.listName}', listUrl: e.listUrl!));
+            gotoListCreatedByImdbUserScreen(context, e.listUrl!);
           },
           child: ListTile(
             leading: ClipRRect(
@@ -727,13 +735,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
         TitleAndSeeAll(
             title: 'Awards',
             onTap: () {
-              //todo
-              // Get.to(
-              //   () {
-              //     var pid = widget.pid;
-              //     return AwardsScreen(pid: pid);
-              //   },
-              // );
+              context.push('/awards/${widget.pid}');
             }),
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -857,23 +859,11 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
             try {
               return InkWell(
                 onTap: () {
-                  //todo
-                  // Get.to(() => Scaffold(
-                  //       appBar: AppBar(
-                  //         title: Text(
-                  //             'Did you know: ${_personResult!.person!.name}'),
-                  //       ),
-                  //       body: ListView.builder(
-                  //         itemCount: _personResult!.person!.didYouKnow!.length,
-                  //         itemBuilder: (BuildContext context, int index) {
-                  //           return Padding(
-                  //               padding: const EdgeInsets.all(8.0),
-                  //               child: DidYouKnowItem(
-                  //                   didYouKnow: _personResult!
-                  //                       .person!.didYouKnow![index]));
-                  //         },
-                  //       ),
-                  //     ));
+                  final person = _personResult;
+                  showDialog(
+                      context: context,
+                      builder: ((context) =>
+                          DidYouKnowDetailScreen(person: person)));
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -909,8 +899,10 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
           onTap: () async {
             var filmographyIds = _filmographyIds.toList();
             var name = _personResult?.person?.name ?? '';
-            await gotoMoviesListScreenLazyWithIds(
-                filmographyIds, name, context);
+            pushRoute(
+                context: context,
+                screen: MoviesListScreenLazyWithIds(
+                    movieIds: filmographyIds, name: name));
           },
         ),
         SizedBox(
@@ -920,8 +912,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
               slivers: _filmographyGroups.entries.map(
                 (e) {
                   const headerFontSize = 15.0;
-                  // debugPrint(
-                  //     'e.key.trim().length * 15.0=${e.key.trim().length * 15.0}');
+
                   return FilmographySliverStack(
                     headerWidth: e.key.trim().length * headerFontSize,
                     header: Text(
@@ -1091,8 +1082,10 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                     EasyLoading.show();
                                     getPeopleFromBirthYearApi(split[0])
                                         .then((birthDatePeopleResp) {
-                                      context.pushNamed('/people_list',
-                                          extra: PeopleListScreenData(
+                                      pushRoute(
+                                          context: context,
+                                          screen: PeopleListScreen(
+                                              data: PeopleListScreenData(
                                             title: 'People born in ${split[0]}',
                                             ids: birthDatePeopleResp.ids,
                                             count: birthDatePeopleResp.count,
@@ -1103,7 +1096,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                                       start: ids.length + 1);
                                               ids.addAll(newResp.ids);
                                             },
-                                          ));
+                                          )));
                                     });
 
                                     EasyLoading.dismiss();
@@ -1114,7 +1107,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                 style: const TextStyle(color: Colors.blue),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () async {
-                                    await goToPeopleBornOnThisDateList(
+                                    goToPeopleBornOnThisDateList(
                                         birthDate, context);
                                   }),
                             if (!isBlank(_personResult?.person?.birthPlace))
@@ -1125,7 +1118,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                   style: const TextStyle(color: Colors.blue),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () async {
-                                      await goToPeopleBornInThisYearList(
+                                      goToPeopleBornInThisPlaceList(
                                           _personResult?.person?.birthPlace ??
                                               '',
                                           context);
@@ -1296,6 +1289,35 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
       }
     }
     return null;
+  }
+}
+
+class DidYouKnowDetailScreen extends StatelessWidget {
+  const DidYouKnowDetailScreen({
+    Key? key,
+    required this.person,
+  }) : super(key: key);
+
+  final PersonResult? person;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Did you know: ${person?.person?.name}'),
+      ),
+      body: ListView.builder(
+        itemCount: person?.person?.didYouKnow?.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: person?.person?.didYouKnow?[index] == null
+                  ? const SizedBox()
+                  : DidYouKnowItem(
+                      didYouKnow: person!.person!.didYouKnow![index]));
+        },
+      ),
+    );
   }
 }
 

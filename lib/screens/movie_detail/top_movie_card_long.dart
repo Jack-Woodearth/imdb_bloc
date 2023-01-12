@@ -7,8 +7,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
 import 'package:imdb_bloc/cubit/user_watch_list_cubit.dart';
+import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
+import 'package:imdb_bloc/screens/movie_detail/tv_seasons_info/cubit/tv_seasons_info_cubit.dart';
+import 'package:imdb_bloc/screens/movie_detail/tv_seasons_info/tv_seasons_info_screen.dart';
 import 'package:imdb_bloc/utils/colors.dart';
 import 'package:imdb_bloc/utils/string/string_utils.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 import 'package:imdb_bloc/widgets/trailers_widget.dart';
 
 import 'package:sliver_tools/sliver_tools.dart';
@@ -24,7 +28,6 @@ import '../../beans/seasons_info.dart';
 import '../../utils/common.dart';
 import '../../utils/platform.dart';
 import '../../widgets/blured.dart';
-import '../../widgets/movie_poster_card.dart';
 import '../../widgets/my_network_image.dart';
 import 'rate_movie_screen.dart';
 
@@ -199,44 +202,9 @@ class _MovieDetailTopCardLongMultiSliversState
     super.didUpdateWidget(oldWidget);
   }
 
-  Future _getRate() async {
-    //todo
-    // if (Get.find<User>().isLogin.value == false) {
-    //   return;
-    // }
-    // if (_userPersonalRateController.map[widget.movieBean.id!] == null) {
-    //   _userPersonalRateController.map[widget.movieBean.id!] =
-    //       await getUserPersonalRateApi(widget.movieBean.id!) ?? 0;
-    // }
-  }
-
-  // Future _getTrailers(TrailersCubit cubit) async {
-  //   // final cubit = context.read<TrailersCubit>();
-  //   if (widget.movieBean.contentType?.toLowerCase().contains('episode') !=
-  //       true) {
-  //     var list = await getTrailersApi(widget.movieBean.id!); //todo
-  //     print('trailers.length=${list.length}');
-  //     cubit.set(list);
-  //   }
-  // }
-
-  // Future _getPlot() async {
-  //   await getPlotApi(widget.movieBean.id!); //todo
-  // }
-
-  // Future _getSeasonsInfo() async {
-  //   if ('${widget.movieBean.contentType}'.toLowerCase().contains('tv')) {
-  //     await getSeasonsInfoApi(widget.movieBean.id!); //todo
-  //   }
-  // }
-
   Future _getData() async {
     await Future.wait([]);
   }
-
-  // Widget _buildTrailers() {
-  //   return TrailersWidget(movieBean: widget.movieBean);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -269,13 +237,11 @@ class _MovieDetailTopCardLongMultiSliversState
           child: MidTitleAndSeeAll(
             'Top Cast',
             seeMoreOnTap: () {
-              //todo
-              // Get.to(
-              //     () => AllCastScreen(
-              //         mid: widget.movieBean.id!,
-              //         title: widget.movieBean.title!,
-              //         contentType: widget.movieBean.contentType),
-              //     preventDuplicates: false);
+              context.push('/all_cast',
+                  extra: AllCastScreenData(
+                      mid: widget.movieBean.id!,
+                      title: widget.movieBean.title!,
+                      contentType: widget.movieBean.contentType));
             },
           ),
         ),
@@ -289,10 +255,7 @@ class _MovieDetailTopCardLongMultiSliversState
         MidTitleAndSeeAll(
           'Top reviews',
           seeMoreOnTap: () {
-            //todo
-            // printInfo(info: 'User reviews seeMoreOnTap');
-            // Get.to(() => AllReviewsScreen(movieBean: widget.movieBean),
-            //     preventDuplicates: false);
+            GoRouter.of(context).push('/reviews', extra: widget.movieBean);
           },
         ),
 
@@ -332,11 +295,7 @@ class _MovieDetailTopCardLongMultiSliversState
                     }
                     return InkWell(
                       onTap: () {
-                        //todo
-                        // Get.to(
-                        //     () => MovieFullDetailScreenLazyLoad(
-                        //         mid: widget.movieBean.tvId!),
-                        //     preventDuplicates: false);
+                        context.push('/title${widget.movieBean.tvId}');
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -699,30 +658,39 @@ class _MovieDetailTopCardLongMultiSliversState
   }
 
   Widget _buildEpisodesGuide() {
-    return Row(
-      children: [
-        TextButton(
-            onPressed: () {
-              //todo
-              // Get.to(() => TvSeasonsInfoScreen(
-              //     movieBean: widget.movieBean,
-              //     seasonCount: _tvSeasonInfoCtrl.info.value != null &&
-              //             _tvSeasonInfoCtrl.info.value!.seasonCount != null
-              //         ? _tvSeasonInfoCtrl.info.value!.seasonCount!
-              //         : 1));
-            },
-            child: const Text('EPISODES GUIDE')),
-        false //todo
-            ? const SizedBox()
-            : FutureBuilder<SeasonsInfo?>(
-                future: getSeasonsInfoApi(widget.movieBean.id!),
-                builder: (BuildContext context,
-                    AsyncSnapshot<SeasonsInfo?> snapshot) {
-                  return Text(
-                      '${pluralObjects(snapshot.data?.seasonCount ?? 1, 'season')}, ${pluralObjects(snapshot.data?.episodeCount ?? 0, 'episode')} ');
-                },
-              ), //todo
-      ],
+    return BlocProvider(
+      create: (context) {
+        var tvSeasonsInfoCubit = TvSeasonsInfoCubit();
+        getSeasonsInfoApi(widget.movieBean.id!)
+            .then((value) => tvSeasonsInfoCubit.set(value));
+        return tvSeasonsInfoCubit;
+      },
+      child: Builder(builder: ((context) {
+        return BlocBuilder<TvSeasonsInfoCubit, TvSeasonsInfoState>(
+          builder: (context, state) {
+            final info = state.info;
+            return Row(
+              children: [
+                TextButton(
+                    onPressed: () {
+                      pushRoute(
+                          context: context,
+                          screen: TvSeasonsInfoScreen(
+                              data: TvSeasonsInfoScreenData(
+                                  movieBean: widget.movieBean,
+                                  seasonCount:
+                                      info != null && info.seasonCount != null
+                                          ? info.seasonCount!
+                                          : 1)));
+                    },
+                    child: const Text('EPISODES GUIDE')),
+                Text(
+                    '${pluralObjects(state.info?.seasonCount ?? 1, 'season')}, ${pluralObjects(state.info?.episodeCount ?? 0, 'episode')} '),
+              ],
+            );
+          },
+        );
+      })),
     );
   }
 

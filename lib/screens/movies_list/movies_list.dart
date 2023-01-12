@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/apis/apis.dart';
 import 'package:imdb_bloc/cubit/user_cubit_cubit.dart';
+import 'package:imdb_bloc/screens/movie_detail/movie_details_screen_lazyload.dart';
 import 'package:imdb_bloc/screens/movies_list/cubit/content_type_cubit.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 import 'package:imdb_bloc/utils/string/string_utils.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../apis/get_movie_content_type.dart';
@@ -20,6 +22,7 @@ import '../../cubit/filter_button_cubit.dart';
 import '../../utils/platform.dart';
 import '../../widgets/filter_buttons.dart';
 import '../../widgets/movie_poster_card.dart';
+import '../person/person_detail_screen.dart';
 import '../user_profile/utils/you_screen_utils.dart';
 
 class MoviesListScreenData {
@@ -90,8 +93,11 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
         BlocProvider(create: ((context) => FilterButtonCubit())),
         BlocProvider(create: ((context) {
           var contentTypeCubit = ContentTypeCubit();
-          getContentTypes()
-              .then((value) => contentTypeCubit.setState(ContentTypeNormal()));
+          getContentTypes().then((value) {
+            if (mounted) {
+              contentTypeCubit.setState(ContentTypeNormal());
+            }
+          });
           return contentTypeCubit;
         })),
       ],
@@ -161,8 +167,9 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
                     //   _enablePullUp = false;
                     // }
 
-                    setState(() {});
-                    //todo lists page
+                    if (mounted) {
+                      setState(() {});
+                    }
                     _refreshController.loadComplete();
                   },
                   child: CustomScrollView(
@@ -191,8 +198,9 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
                                       builder: (context, state) {
                                         return FilterButtons(
                                           tag: '',
-                                          btnNames: const [
-                                            BtnNames.type,
+                                          btnNames: [
+                                            if (state is ContentTypeNormal)
+                                              BtnNames.type,
                                             BtnNames.genres,
                                             BtnNames.runtime,
                                             BtnNames.rate,
@@ -351,7 +359,9 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
                   ),
                   InkWell(
                     onTap: () {
-                      context.push('/title/${movie.id}');
+                      pushRoute(
+                          context: context,
+                          screen: MovieFullDetailScreenLazyLoad(mid: movie.id));
                     },
                     child: SizedBox(
                       height: height,
@@ -489,8 +499,9 @@ class StarsOrDirector extends StatelessWidget {
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
                       onTap: () {
-                        // Get.to(() => PersonDetailScreen(pid: names[index].id));
-                        GoRouter.of(context).push('/person/${names[index].id}');
+                        pushRoute(
+                            context: context,
+                            screen: PersonDetailScreen(pid: names[index].id));
                       },
                       child: Text(
                         '${names[index].name}',
@@ -609,7 +620,9 @@ class _MovieCardState extends State<MovieCard>
                 ),
                 InkWell(
                   onTap: () {
-                    context.push('/title/${movie.id}');
+                    pushRoute(
+                        context: context,
+                        screen: MovieFullDetailScreenLazyLoad(mid: movie.id));
                   },
                   child: SizedBox(
                     height: height,

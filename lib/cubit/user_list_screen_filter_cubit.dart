@@ -15,8 +15,11 @@ class UserListCubit extends Cubit<UserListState> {
     emit(state.copyWith(listUrls: state.listUrls.toList()..add(url)));
   }
 
-  void removeUrl(String url) {
-    emit(state.copyWith(listUrls: state.listUrls.toList()..remove(url)));
+  void remove(String url) {
+    emit(state.copyWith(
+        listUrls: state.listUrls.toList()..remove(url),
+        userLists: state.userLists.toList()
+          ..removeWhere((element) => element.listUrl == url)));
   }
 
   void reset() {

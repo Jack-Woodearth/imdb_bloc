@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imdb_bloc/beans/person_detail_resp.dart';
 import 'package:imdb_bloc/cubit/favlist_count_cubit.dart';
 import 'package:imdb_bloc/cubit/filter_button_cubit.dart';
 import 'package:imdb_bloc/cubit/user_recently_viewed_cubit.dart';
@@ -17,8 +18,13 @@ import 'package:imdb_bloc/cubit/user_fav_photos_cubit.dart';
 import 'package:imdb_bloc/cubit/user_list_screen_filter_cubit.dart';
 import 'package:imdb_bloc/cubit/user_rated_cubit.dart';
 import 'package:imdb_bloc/cubit/user_watch_list_cubit.dart';
+import 'package:imdb_bloc/screens/settings/settings_home.dart';
+import 'package:imdb_bloc/screens/signin/imdb_signin.dart';
+import 'package:imdb_bloc/screens/user_lists/add_list.dart';
+import 'package:imdb_bloc/screens/user_lists/user_lists_screen.dart';
 import 'package:imdb_bloc/screens/user_profile/user_fav_lists_card.dart';
 import 'package:imdb_bloc/screens/user_profile/user_lists_card.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 import 'package:imdb_bloc/widgets/PosterCardWrappedLazyLoadBean.dart';
 import 'package:imdb_bloc/widgets/filter_buttons.dart';
 import 'package:imdb_bloc/widgets/movie_poster_card.dart';
@@ -100,12 +106,10 @@ class _YouScreenState extends State<YouScreen> {
                               child: Container(
                                   width: personSize,
                                   height: personSize,
-                                  color:
-                                      //todo
-                                      Theme.of(context)
-                                          .colorScheme
-                                          .onBackground
-                                          .withOpacity(0.5),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground
+                                      .withOpacity(0.5),
                                   child: const Icon(
                                     Icons.person_rounded,
                                   )),
@@ -141,7 +145,9 @@ class _YouScreenState extends State<YouScreen> {
                             }),
                             IconButton(
                                 onPressed: () {
-                                  GoRouter.of(context).push('/settings');
+                                  pushRoute(
+                                      context: context,
+                                      screen: const SettingsHomeScreen());
                                 },
                                 icon: const Icon(Icons.settings_outlined)),
                           ],
@@ -165,7 +171,9 @@ class _YouScreenState extends State<YouScreen> {
                         ? ImdbButton(
                             text: 'Sign in / Sign up',
                             onTap: () {
-                              GoRouter.of(context).push('/signin');
+                              pushRoute(
+                                  context: context,
+                                  screen: const ImdbSignInScreen());
                             },
                           )
                         : const SizedBox();
@@ -696,10 +704,12 @@ class _UserListsCardOnYouScreenState extends State<UserListsCardOnYouScreen> {
       margin: EdgeInsets.zero,
       child: InkWell(
         onTap: () {
+          pushRoute(context: context, screen: const UserListScreen());
           //todo
           // if (Get.find<UserListScreenFilterController>().listUrls.isNotEmpty) {
           //   Get.to(() => const UserListScreen());
           // }
+          // pushRoute(context: context, screen: userlissc)
         },
         child: Column(children: [
           Expanded(
@@ -708,8 +718,9 @@ class _UserListsCardOnYouScreenState extends State<UserListsCardOnYouScreen> {
                   ? Center(
                       child: CupertinoButton(
                           onPressed: () {
-                            //todo
-                            // Get.to(() => const AddListScreen());
+                            pushRoute(
+                                context: context,
+                                screen: const AddListScreen());
                           },
                           child: const Text('Create a list')))
                   : UserListsCard(

@@ -6,8 +6,12 @@
 // import 'package:imdb/screens/movie_full_detail/all_images.dart';
 // import 'package:imdb/screens/person/person_list_screen.dart';
 // import 'package:imdb/utils/enums.dart';
+// import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
 
 // import '../../beans/details.dart';
+// import '../../beans/list_resp.dart';
+// import '../../enums/enums.dart';
+// import '../all_images/all_images.dart';
 
 // class UserListDetailsScreen extends StatefulWidget {
 //   const UserListDetailsScreen(
@@ -45,10 +49,12 @@
 //     var listName = '${widget.listResult.listName}';
 //     if (widget.listResult.isPictureList == true) {
 //       return AllImagesScreen(
-//         imageViewType: ImageViewType.listPicture,
-//         subjectId: '',
-//         title: widget.listResult.listName ?? '',
-//         pictures: widget.listResult.pictures,
+//         data: AllImagesScreenData(
+//           imageViewType: ImageViewType.listPicture,
+//           subjectId: '',
+//           title: widget.listResult.listName ?? '',
+//           pictures: widget.listResult.pictures,
+//         ),
 //       );
 //     }
 

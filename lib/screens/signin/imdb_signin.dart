@@ -13,6 +13,7 @@ import 'package:imdb_bloc/screens/signin/cubit/sign_in_cubit.dart';
 import 'package:imdb_bloc/singletons/user.dart';
 import 'package:imdb_bloc/utils/dio/dio.dart';
 import 'package:imdb_bloc/utils/string/string_utils.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../extensions/string_extensions.dart';
 
@@ -149,7 +150,7 @@ class SignInButton extends StatelessWidget {
           // print(response.data);
           if (reqSuccess(response)) {
             EasyLoading.showSuccess('Sign in success');
-            of.go('/');
+
             user = User(
                 isLogin: true,
                 uid: '${response.data['uid']}',
@@ -159,6 +160,8 @@ class SignInButton extends StatelessWidget {
 
             // getFavListsCount(favListCountCubit);
             initWithContext(context);
+            // of.go('/');
+            goHome(context);
             var sp = await SharedPreferences.getInstance();
             sp.setString(userObjKey, jsonEncode(user.toJson()));
           } else {

@@ -134,6 +134,8 @@ Future<void> deleteIdFromList(
   VoidCallback afterDelete, {
   required String authorId,
 }) async {
+  var of = Navigator.of(context);
+
   // print('$UserListScreen');
   if (authorId == user.uid) {
     showConfirmDialog(context, 'Delete this from list?', () async {
@@ -149,8 +151,7 @@ Future<void> deleteIdFromList(
         EasyLoading.showSuccess('delete failed');
       }
       updateUserLists();
-      //todo
-      // Get.back();
+      of.pop();
       afterDelete();
     });
   }

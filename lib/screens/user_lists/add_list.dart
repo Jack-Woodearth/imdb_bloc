@@ -57,7 +57,7 @@ class _AddListScreenState extends State<AddListScreen> {
                         value: 'Title',
                         groupValue: _type,
                         onChanged: (value) {
-                          print(value);
+                          // print(value);
                           setStateInner(() {
                             _type = 'Title';
                           });
@@ -72,7 +72,7 @@ class _AddListScreenState extends State<AddListScreen> {
                           value: 'Name',
                           groupValue: _type,
                           onChanged: (value) {
-                            print(value);
+                            // print(value);
                             setStateInner(() {
                               _type = 'Name';
                             });

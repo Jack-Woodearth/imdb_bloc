@@ -27,4 +27,16 @@ class ImagesSelectionCubit extends Cubit<ImagesSelectionState> {
   void disableSelection() {
     emit(ImagesSelectionState(state.selected, false));
   }
+
+  void empty() {
+    emit(ImagesSelectionState([], state.isSelectionMode));
+  }
+
+  void setSelected(List<PhotoWithSubjectId> photos) {
+    emit(ImagesSelectionState(photos, state.isSelectionMode));
+  }
+
+  void setState(ImagesSelectionState state) {
+    emit(state);
+  }
 }

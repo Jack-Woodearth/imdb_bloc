@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
 import '../apis/list_repr_images_api.dart';
 import '../beans/list_resp.dart';
@@ -67,14 +68,8 @@ class _UserListListState extends State<UserListList> {
       ),
       child: InkWell(
         onTap: () {
-          // Get.to(() =>
-          //     // UserListDetailsScreen(
-          //     //       // listUrl: widget.userList.listUrl ?? '',
-          //     //       // title: widget.userList.listName ?? '',
-          //     //       // isPeopleList: widget.userList.isPeopleList == true,
-          //     //       listResult: ListResult.fromJson(widget.userList.toJson()),
-          //     //     ),
-          //     NewListScreen(listUrl: widget.userList.listUrl ?? ''));
+          gotoListCreatedByImdbUserScreen(
+              context, widget.userList.listUrl ?? '');
         },
         child: SizedBox(
           width: screenWidth(context),

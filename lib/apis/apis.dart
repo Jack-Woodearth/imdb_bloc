@@ -543,7 +543,6 @@ bool isRated(String mid, BuildContext context) {
 }
 
 bool isFavPeopleOrInWatchList(String id, BuildContext context) {
-  //todo
   return context.read<UserWatchListCubit>().state.ids.contains(id) ||
       context.read<UserFavPeopleCubit>().state.ids.contains(id);
 }

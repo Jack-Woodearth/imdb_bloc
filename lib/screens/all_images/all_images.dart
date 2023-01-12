@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
+import 'package:imdb_bloc/cubit/user_cubit_cubit.dart';
 import 'package:imdb_bloc/cubit/user_fav_photos_cubit.dart';
 import 'package:imdb_bloc/screens/all_images/cubit/images_selection_cubit.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -70,13 +71,14 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
   void initState() {
     super.initState();
     _controller.addListener(_listenScrollVelocity);
+    _getData();
   }
 
   @override
   void didUpdateWidget(AllImagesScreen oldWidget) {
     if (oldWidget.data.subjectId != widget.data.subjectId) {
       debugPrint('didUpdateWidget2222');
-      _onRefresh();
+      _getData();
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -153,30 +155,32 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
 
   final _controller = ScrollController();
   final _key = GlobalKey<ScaffoldMessengerState>();
-  final RefreshController _refreshController = RefreshController(
-      initialRefresh: true, initialRefreshStatus: RefreshStatus.refreshing);
+  final RefreshController _refreshController = RefreshController();
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ImagesSelectionCubit(),
-      child: ScaffoldMessenger(
-        key: _key,
-        child: Scaffold(
-          floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-          floatingActionButton: _buildFLoatingActionButton(),
-          appBar: _buildAppBar(),
-          body: SmartRefresher(
-              controller: _refreshController,
-              header: const WaterDropHeader(),
-              enablePullUp: allowPullUp,
-              onRefresh: _onRefresh,
-              onLoading: () async {
-                await _onLoading();
-                _refreshController.loadComplete();
-              },
-              child: _buildBody()),
-        ),
-      ),
+      child: Builder(builder: (context) {
+        return ScaffoldMessenger(
+          key: _key,
+          child: Scaffold(
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.endDocked,
+            floatingActionButton: _buildFLoatingActionButton(),
+            appBar: _buildAppBar(context),
+            body: SmartRefresher(
+                controller: _refreshController,
+                header: const WaterDropHeader(),
+                enablePullUp: allowPullUp,
+                onRefresh: _onRefresh,
+                onLoading: () async {
+                  await _onLoading();
+                  _refreshController.loadComplete();
+                },
+                child: _buildBody()),
+          ),
+        );
+      }),
     );
   }
 
@@ -214,7 +218,7 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
     }
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       title: Text(
         widget.data.title,
@@ -254,18 +258,27 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
         ),
       ),
       actions: [
+        BlocBuilder<ImagesSelectionCubit, ImagesSelectionState>(
+          builder: (context, state) {
+            return IconButton(
+                onPressed: () {
+                  _handleFavPhotos(context);
+                },
+                icon: state.selected.isEmpty
+                    ? const SizedBox()
+                    : Icon(
+                        _imageViewType == ImageViewType.userFavorite
+                            ? Icons.favorite_outline
+                            : Icons.favorite,
+                        color: ImdbColors.themeYellow,
+                      ));
+          },
+        ),
         IconButton(
-            onPressed: _handleFavPhotos,
-            icon: [].isEmpty //todo
-                ? const SizedBox()
-                : Icon(
-                    _imageViewType == ImageViewType.userFavorite
-                        ? Icons.favorite_outline
-                        : Icons.favorite,
-                    color: ImdbColors.themeYellow,
-                  )),
-        IconButton(
-            onPressed: _toggleSelectAll, icon: const Icon(Icons.select_all)),
+            onPressed: () {
+              _toggleSelectAll(context);
+            },
+            icon: const Icon(Icons.select_all)),
         _imageViewType == ImageViewType.userFavorite
             ? const SizedBox()
             : IconButton(
@@ -473,21 +486,18 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
     // _locked = false;
   }
 
-  void _toggleSelectAll() {
-    //todo
-    // if (_selectionController.selected.length < _all.length) {
-    //   _selectionController.selected.clear();
-    //   _selectionController.selected.addAll(_all);
-    //   _selectionController.isSelectionMode = true;
-    // } else {
-    //   _selectionController.selected.clear();
-    //   _selectionController.isSelectionMode = false;
-    // }
+  void _toggleSelectAll(BuildContext context) {
+    var cubit = context.read<ImagesSelectionCubit>();
+    if (cubit.state.selected.length < _all.length) {
+      cubit.setState(ImagesSelectionState(_all, true));
+    } else {
+      cubit.setState(const ImagesSelectionState([], false));
+    }
   }
 
-  void _handleFavPhotos() {
-    var selected =
-        <PhotoWithSubjectId>[]; //todo Get.find<SelectionController>().selected;
+  void _handleFavPhotos(BuildContext context) {
+    var cubit = context.read<ImagesSelectionCubit>();
+    var selected = cubit.state.selected;
     if (selected.isEmpty) {
       return;
     }
@@ -513,8 +523,9 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
                   // _imagesCountController.count.value =
                   //     Get.find<UserFavPhotosController>().photos.length;
                   // _all = Get.find<UserFavPhotosController>().photos;
-                  selected.clear();
+                  // selected.clear();
                   // _selectionController.isSelectionMode = false;//todo
+
                   if (success) {
                     _key.currentState?.hideCurrentSnackBar();
                     _key.currentState?.showSnackBar(
@@ -533,7 +544,7 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
                   updateUserFavPhotos(context);
                   if (success) {
                     _key.currentState?.showSnackBar(
-                        buildFavPhotoAddSuccessSnackBar(
+                        buildFavPhotoAddSuccessSnackBar(context,
                             preventDuplicates: false, length: selected.length));
                   }
                 }

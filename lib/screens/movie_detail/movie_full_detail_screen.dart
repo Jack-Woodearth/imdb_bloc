@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/apis/apis.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
+import 'package:imdb_bloc/cubit/loader_cubit.dart';
 import 'package:imdb_bloc/cubit/user_fav_people_cubit.dart';
 import 'package:imdb_bloc/enums/enums.dart';
 import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
@@ -12,6 +13,7 @@ import 'package:imdb_bloc/screens/all_images/all_images.dart';
 import 'package:imdb_bloc/screens/movies_list/movies_list.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 import 'package:imdb_bloc/utils/string/string_utils.dart';
+import 'package:imdb_bloc/widgets/scaffold_with_loading_mask.dart';
 
 import 'package:sliver_tools/sliver_tools.dart';
 
@@ -26,6 +28,7 @@ import '../../widget_methods/widget_methods.dart';
 import '../../widgets/YellowDivider.dart';
 import '../../widgets/movie_poster_card.dart';
 import '../../widgets/my_network_image.dart';
+import 'awards_screen/movie_awards.dart';
 import 'top_movie_card_long.dart';
 
 // class ListWrapperWrapperOnlyListId extends StatefulWidget {
@@ -304,7 +307,8 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
       [];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ScaffoldWithLoadingMask(
+        child: Scaffold(
       appBar: AppBar(
         title: Text('${widget.movieBean.title} '),
         actions: [
@@ -362,8 +366,7 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
             _buildDirectorWriterInfo(),
 
             //awards
-            //todo
-            // MovieAwardsWidget(mid: widget.movieBean.id!),
+            MovieAwardsWidget(mid: widget.movieBean.id!),
 
             //More like this
             TitleAndSeeAll(
@@ -371,11 +374,13 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
               label: '${recoms.length}',
               onTap: () async {
                 EasyLoading.show();
+                var of = GoRouter.of(context);
+
                 var newMovieListRespResult = await getNewListMoviesApi(
                     mids: recoms.map((e) => e.id!).toList());
-                // dp('$newMovieListRespResult');
+                // dp('');
                 if (newMovieListRespResult != null) {
-                  GoRouter.of(context).pushNamed('/movies_list',
+                  of.pushNamed('/movies_list',
                       extra: MoviesListScreenData(
                           title: 'More like ${widget.movieBean.title}',
                           newMovieListRespResult: newMovieListRespResult));
@@ -419,7 +424,8 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
                     const TitleWithStartingYellowDivider(
                       title: 'Editorial lists',
                     ),
-                    _buildListsSliverList(snapshot.data?.editorial ?? [])
+                    _buildListsSliverList(
+                        snapshot.data?.editorial ?? [], context)
                   ],
 
                   // user lists
@@ -427,7 +433,8 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
                     const TitleWithStartingYellowDivider(
                       title: 'User lists',
                     ),
-                    _buildListsSliverList(snapshot.data?.userLists ?? [])
+                    _buildListsSliverList(
+                        snapshot.data?.userLists ?? [], context)
                   ],
 
                   if (snapshot.data?.userPolls?.isNotEmpty == true) ...[
@@ -472,7 +479,7 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
           ])
         ],
       ),
-    );
+    ));
   }
 
   SliverList _buildUserPolls(AsyncSnapshot<MovieRelatedListsPolls?> snapshot) {
@@ -505,7 +512,7 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
   }
 
   bool _locked = false;
-  SliverList _buildListsSliverList(List<ListBean> lists) {
+  SliverList _buildListsSliverList(List<ListBean> lists, BuildContext context) {
     return SliverList(
         delegate: SliverChildBuilderDelegate(
       (context, index) {
@@ -518,16 +525,9 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
                   return;
                 }
                 _locked = true;
-                EasyLoading.show();
-                var newMovieListRespResult =
-                    await getNewListMoviesApi(listUrl: listBean.listUrl);
-                if (newMovieListRespResult != null) {
-                  GoRouter.of(context).pushNamed('/movies_list',
-                      extra: MoviesListScreenData(
-                          title: listBean.listName ?? '',
-                          newMovieListRespResult: newMovieListRespResult));
-                }
-                EasyLoading.dismiss();
+                gotoListCreatedByImdbUserScreen(
+                    context, listBean.listUrl ?? '');
+
                 _locked = false;
               },
               child: ListTile(

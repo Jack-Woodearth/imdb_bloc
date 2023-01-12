@@ -64,13 +64,14 @@ Future<void> toggleFavPhoto(
   var state = key?.currentState;
   state ??= scaffoldState;
   debugPrint('state :  $state');
+  var of = Navigator.of(context);
 
   if (!isFavPhoto(image, context)) {
     var success = await addUserFavPhotoApi([image]);
     if (success) {
       try {
         state?.removeCurrentSnackBar();
-        state?.showSnackBar(buildFavPhotoAddSuccessSnackBar());
+        state?.showSnackBar(buildFavPhotoAddSuccessSnackBar(context));
       } catch (e) {
         EasyLoading.showSuccess('Photo added to your favorites');
       }
@@ -79,8 +80,7 @@ Future<void> toggleFavPhoto(
     var success = await deleteUserFavPhotoApi([image]);
     if (success) {
       if (imageViewType == ImageViewType.userFavorite) {
-        //todo
-        // Get.back();
+        of.pop();
       }
       try {
         state?.removeCurrentSnackBar();
@@ -90,9 +90,6 @@ Future<void> toggleFavPhoto(
         debugPrint('448888 e');
         EasyLoading.showSuccess('Photo deleted from your favorites');
       }
-
-      // showBottomToast('Photo deleted from your favorites', context);
-
     }
   }
 

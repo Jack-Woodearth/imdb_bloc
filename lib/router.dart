@@ -5,10 +5,14 @@ import 'package:imdb_bloc/apis/apis.dart';
 import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
 import 'package:imdb_bloc/screens/all_cast/cast_episodes_credits_screen.dart';
 import 'package:imdb_bloc/screens/all_images/all_images.dart';
+import 'package:imdb_bloc/screens/event/event_history_screen.dart';
 import 'package:imdb_bloc/screens/home/home_screen.dart';
+import 'package:imdb_bloc/screens/movie_detail/awards_screen/AwardsScreen.dart';
 import 'package:imdb_bloc/screens/movie_detail/movie_details_screen_lazyload.dart';
 import 'package:imdb_bloc/screens/movie_detail/plot/plot_screen.dart';
 import 'package:imdb_bloc/screens/movie_detail/rate_movie_screen.dart';
+import 'package:imdb_bloc/screens/movie_detail/reviews_screen/all_reviews_screen.dart';
+import 'package:imdb_bloc/screens/movie_detail/tv_seasons_info/tv_seasons_info_screen.dart';
 import 'package:imdb_bloc/screens/movies_list/movies_list.dart';
 import 'package:imdb_bloc/screens/people_screen/person_list_screen.dart';
 import 'package:imdb_bloc/screens/person/person_detail_screen.dart';
@@ -85,10 +89,7 @@ final GoRouter router = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         var personId = state.params['id']!;
         updateRecentViewed(personId, context);
-        return BlocProvider(
-          create: (context) => PersonPhotosCubit(),
-          child: PersonDetailScreen(pid: personId),
-        );
+        return PersonDetailScreen(pid: personId);
       },
     ),
     GoRoute(
@@ -205,6 +206,46 @@ final GoRouter router = GoRouter(
         // MoviesListScreenData data = state.extra as MoviesListScreenData;
         return SelectListScreen(
           subjectId: state.params['subjectId']!,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/awards/:id',
+      name: '/awards/:id',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return AwardsScreen(
+          id: state.params['id']!,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/event_history/:id',
+      name: '/event_history/:id',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return EventHistoryScreen(
+          historyId: state.params['id']!,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/reviews',
+      name: '/reviews',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return AllReviewsScreen(
+          movieBean: state.extra as MovieBean,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/seasons_info',
+      name: '/seasons_info',
+      builder: (BuildContext context, GoRouterState state) {
+        // MoviesListScreenData data = state.extra as MoviesListScreenData;
+        return TvSeasonsInfoScreen(
+          data: state.extra as TvSeasonsInfoScreenData,
         );
       },
     ),

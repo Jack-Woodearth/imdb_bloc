@@ -19,7 +19,7 @@ class SettingsHomeScreen extends StatelessWidget {
             onPressed: (context) {
               showConfirmDialog(context, 'Sign out', () async {
                 logout(context);
-                GoRouter.of(context).go('/');
+                goHome(context);
               });
             },
           ),

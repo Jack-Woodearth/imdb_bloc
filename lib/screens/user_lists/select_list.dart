@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:go_router/go_router.dart';
-import 'package:imdb_bloc/apis/apis.dart';
 import 'package:imdb_bloc/apis/user_lists.dart';
 import 'package:imdb_bloc/cubit/user_list_screen_filter_cubit.dart';
-import 'package:imdb_bloc/screens/people_screen/person_list_screen.dart';
+import 'package:imdb_bloc/screens/user_lists/add_list.dart';
 import 'package:imdb_bloc/screens/user_lists/cubit/select_list_screen_checked_list_cubit.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 import 'package:imdb_bloc/utils/string/string_utils.dart';
 import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-import '../../beans/list_resp.dart';
 
 class SelectListScreen extends StatefulWidget {
   const SelectListScreen({Key? key, required this.subjectId}) : super(key: key);
@@ -53,7 +49,7 @@ class _SelectListScreenState extends State<SelectListScreen> {
             children: [
               InkWell(
                 onTap: () {
-                  GoRouter.of(context).push('/add_list');
+                  pushRoute(context: context, screen: const AddListScreen());
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -147,7 +143,10 @@ class _SelectListScreenState extends State<SelectListScreen> {
                                       var url =
                                           state.userLists[index].listUrl ?? '';
 
-                                      goToListCreatedByImdbUser(url, context);
+                                      gotoListCreatedByImdbUserScreen(
+                                        context,
+                                        url,
+                                      );
                                     },
                                     icon:
                                         const Icon(Icons.keyboard_arrow_right)),

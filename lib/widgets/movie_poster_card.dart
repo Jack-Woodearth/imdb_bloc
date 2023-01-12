@@ -8,6 +8,10 @@ import 'package:imdb_bloc/constants/colors_constants.dart';
 import 'package:imdb_bloc/cubit/user_fav_people_cubit.dart';
 import 'package:imdb_bloc/cubit/user_rated_cubit.dart';
 import 'package:imdb_bloc/cubit/user_watch_list_cubit.dart';
+import 'package:imdb_bloc/screens/movie_detail/movie_details_screen_lazyload.dart';
+import 'package:imdb_bloc/screens/movie_detail/movie_full_detail_screen.dart';
+import 'package:imdb_bloc/screens/person/person_detail_screen.dart';
+import 'package:imdb_bloc/screens/person/person_full_bio_screen.dart';
 
 import '../apis/apis.dart';
 import '../apis/watchlist_api.dart';
@@ -59,27 +63,18 @@ class PosterCard extends StatelessWidget {
           return;
         }
         if (id.startsWith('tt') && movieBean != null) {
-          GoRouter.of(context).push('/title/$id');
-          // Get.to(
-          //     () => TransitionAwaited(
-          //           child: MovieFullDetailScreen(
-          //             movieBean: movieBean!,
-          //           ),
-          //           placeHolder: MyNetworkImage(url: movieBean!.cover),
-          //         ),
-          //     preventDuplicates: false,
-          //     routeName: '$MovieFullDetailScreen');
+          pushRoute(
+              context: context,
+              screen: MovieFullDetailScreen(movieBean: movieBean!));
         } else if (id.startsWith('tt') && movieBean == null) {
-          GoRouter.of(context).push('/title/$id');
-          // Get.to(
-          //     () => MovieFullDetailScreenLazyLoad(
-          //           mid: id,
-          //           cover: posterUrl,
-          //         ),
-          //     preventDuplicates: false);
+          pushRoute(
+              context: context,
+              screen: MovieFullDetailScreenLazyLoad(
+                mid: id,
+                cover: posterUrl,
+              ));
         } else if (id.startsWith('nm')) {
-          GoRouter.of(context).push('/person/$id');
-          // Get.to(() => PersonDetailScreen(pid: id), preventDuplicates: false);
+          pushRoute(context: context, screen: PersonDetailScreen(pid: id));
         }
       },
       child: Card(

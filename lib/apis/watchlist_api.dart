@@ -50,7 +50,6 @@ Future<Response> updateWatchListOrFavPeople(
       } else if (id.startsWith('nm')) {
         getBasicInfoApi([id]).then((value) {
           if (value.isNotEmpty == true) {
-            //todo
             var person = value.first;
             userFavPeopleCubit.add(PersonBeanWithUserWatchListTime(
                 personBean: person, userWatchListTime: DateTime.now()));
