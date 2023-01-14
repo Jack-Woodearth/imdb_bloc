@@ -85,6 +85,9 @@ dependencies:
   # flutter_form_builder: ^7.7.0
   settings_ui: ^2.0.2
   flutter_isolate: ^2.0.4
+  image_cropper: ^3.0.1
+  file_picker: ^5.2.5
+  image: ^4.0.8
 dev_dependencies:
   flutter_test:
     sdk: flutter

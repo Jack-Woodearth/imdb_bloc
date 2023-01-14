@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 const isDebug = true;
-const String serverDebug = 'http://192.168.125.194';
+const String serverDebug = 'http://192.168.10.102';
 const String server = 'https://cn-ah-dx-2.natfrp.cloud:58475';
 const String serverCurrent = isDebug ? serverDebug : server;
 const String userUrl = '$serverCurrent/api/v1/users';

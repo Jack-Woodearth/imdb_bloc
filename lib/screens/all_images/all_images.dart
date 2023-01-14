@@ -328,6 +328,11 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
   Widget _buildBody() {
     // printInfo(info: '_buildBody');
     debugPrint('_imageViewType=$_imageViewType');
+    if (_loading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     if (_imageViewType == ImageViewType.userFavorite) {
       return BlocBuilder<UserFavPhotosCubit, UserFavPhotosState>(
         builder: (context, state) {

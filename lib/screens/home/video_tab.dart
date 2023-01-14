@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imdb_bloc/constants/config_constants.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 import 'package:imdb_bloc/widgets/StackedPictures.dart';
+
+import 'game.dart';
 
 class VideoTab extends StatefulWidget {
   const VideoTab({super.key});
@@ -33,29 +36,73 @@ class _VideoTabState extends State<VideoTab> {
   @override
   Widget build(BuildContext context) {
     dp('VideoTab rebuild');
-    return Column(
-      children: [
-        TextButton(
-            onPressed: () {
-              compute((message) {
-                dp(message);
-              }, 'hello worker isolate from main isolated');
-            },
-            child: const Text('Test isolate')),
-        Container(
-            width: 83.34,
-            height: 100,
-            color: Colors.green,
-            child: const StackedPictures(pictures: [
-              defaultCover,
-              defaultCover,
-              defaultCover,
-              defaultCover,
-              defaultCover,
-              defaultCover,
-              defaultCover,
-            ]))
-      ],
+    return GameTest();
+    return ColorsGame();
+    return SingleChildScrollView(
+      child: SizedBox(
+        height: 2000,
+        child: Column(
+          children: [
+            TextButton(
+                onPressed: () {
+                  compute((message) {
+                    dp(message);
+                  }, 'hello worker isolate from main isolated');
+                },
+                child: const Text('Test isolate')),
+            Container(
+                width: 83.34,
+                height: 100,
+                color: Colors.green,
+                child: const StackedPictures(pictures: [
+                  defaultCover,
+                  defaultCover,
+                  defaultCover,
+                  defaultCover,
+                  defaultCover,
+                  defaultCover,
+                  defaultCover,
+                ])),
+            Draggable(
+                // affinity: Axis.horizontal,
+                maxSimultaneousDrags: 1,
+                // axis: Axis.vertical,
+                child: Container(
+                  color: Colors.amber,
+                  height: 50,
+                  width: 50,
+                ),
+                childWhenDragging: SizedBox(),
+                feedback: Container(
+                  color: Colors.amber.withOpacity(0.2),
+                  height: 50,
+                  width: 50,
+                )),
+            Expanded(
+              child: Stack(
+                children: [
+                  GestureDetector(
+                    onDoubleTap: () {
+                      dp('GestureDetector tapped');
+                    },
+                  ),
+                  AbsorbPointer(
+                    child: TextButton(
+                      child: const Text(
+                        'buttton on top of GestureDetector',
+                        style: TextStyle(fontSize: 50),
+                      ),
+                      onPressed: () {
+                        dp('buttton on top of GestureDetector pressed');
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
 
     return NotificationListener<MyNotification>(onNotification: (notification) {
@@ -336,5 +383,224 @@ class MyNotification extends Notification {
   void dispatch(BuildContext? target) {
     dp('MyNotification "$details" dispatched');
     super.dispatch(target);
+  }
+}
+
+class ColorsGame extends StatefulWidget {
+  @override
+  _ColorsGameState createState() => _ColorsGameState();
+}
+
+class _ColorsGameState extends State<ColorsGame> {
+  late MaterialColor _color;
+  late List<Color> _list;
+
+  @override
+  void initState() {
+    _generatePuzzle();
+    super.initState();
+  }
+
+  _generatePuzzle() {
+    setState(() {
+      final _rnd = Random();
+      const allowedColors = Colors.primaries;
+      _color = allowedColors[_rnd.nextInt(allowedColors.length)];
+      final l1 = [100, 200]..shuffle(_rnd);
+      final l2 = [300, 400, 600, 800]..shuffle(_rnd);
+      _list = [...l1, ...l2].map((i) => _color[i]!).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Draggable Game Example"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              "Drag and drop to rearrange",
+              style: TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 16),
+            IconButton(
+              onPressed: _generatePuzzle,
+              icon: Icon(Icons.shuffle),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: EdgeInsets.all(1.0),
+              child: Container(
+                width: ColorBox.boxWidth - ColorBox.boxPadding * 2,
+                height: ColorBox.boxHeight - ColorBox.boxPadding * 2,
+                decoration: BoxDecoration(
+                  color: _color[900],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.lock_outline,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            ReorderColors(
+              color: _color,
+              colorList: _list,
+              onSuccess: () => showDialog(
+                  context: context,
+                  builder: ((context) => AlertDialog(
+                        title: Text('success'),
+                      ))),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ReorderColors extends StatefulWidget {
+  final MaterialColor color;
+  final List<Color> colorList;
+  final Function() onSuccess;
+
+  ReorderColors({
+    required this.color,
+    required this.colorList,
+    required this.onSuccess,
+  }) : super(key: UniqueKey());
+
+  @override
+  _ReorderColorsState createState() => _ReorderColorsState();
+}
+
+class _ReorderColorsState extends State<ReorderColors> {
+  int _emptySlot = 1;
+  double _tapOffset = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final _list = widget.colorList;
+    final h = ColorBox.boxHeight;
+    return Container(
+      width: ColorBox.boxWidth,
+      height: _list.length * h,
+      child: Listener(
+        onPointerDown: (event) {
+          /**
+           * 这段代码的作用是计算出一个物体在屏幕上的垂直偏移量（即相对于它自己的局部坐标系的y轴）。
+              第一行，定义了一个变量 obj，该变量获取到了当前界面上的渲染对象，并将其转换为一个 RenderBox 类型。
+              第二行，计算出了 obj 在屏幕上的垂直偏移量。
+              通过调用 obj.globalToLocal(Offset.zero) 方法将全局坐标系（屏幕坐标系）中坐标（0,0） 转换为局部坐标系，
+              并返回一个 Offset 类型的值，该值表示了相对于 obj 的局部坐标系的坐标。最后通过.dy 取出y轴偏移量。
+           */
+          final obj = context.findRenderObject() as RenderBox;
+          _tapOffset =
+              obj.globalToLocal(Offset.zero).dy; //该值表示了相对于 obj 的局部坐标系的坐标。
+        },
+        onPointerMove: (event) {
+          final y = event.position.dy + _tapOffset;
+          if (y > (_emptySlot + 1) * h) {
+            if (_emptySlot == _list.length - 1) return;
+            Color temp = _list[_emptySlot];
+            _list[_emptySlot] = _list[_emptySlot + 1];
+            _list[_emptySlot + 1] = temp;
+            setState(() => _emptySlot++);
+          } else if (y < (_emptySlot) * h - (h / 2)) {
+            if (_emptySlot == 0) return;
+            Color temp = _list[_emptySlot];
+            _list[_emptySlot] = _list[_emptySlot - 1];
+            _list[_emptySlot - 1] = temp;
+            setState(() => _emptySlot--);
+          }
+        },
+        child: Stack(
+          children: List.generate(
+            _list.length,
+            (i) => ColorBox(
+              x: 0,
+              y: i * h,
+              color: _list[i],
+              onDrag: (c) => _emptySlot = _list.indexOf(c),
+              onDrop: () {
+                final it = _list.map((c) => c.computeLuminance()).iterator
+                  ..moveNext(); //移动到第一个元素。
+                var prev = it.current;
+                var sorted = true;
+                while (it.moveNext()) {
+                  if (it.current < prev) {
+                    sorted = false;
+                    break;
+                  }
+                  prev = it.current;
+                }
+                if (sorted) widget.onSuccess();
+
+                // var list = _list.map((c) => c.computeLuminance()).toList();
+                // var sorted = true;
+                // for (int i = 0; i < list.length - 1; i++) {
+                //   if (list[i] > list[i + 1]) {
+                //     sorted = false;
+                //     break;
+                //   }
+                // }
+                // if (sorted) widget.onSuccess();
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ColorBox extends StatelessWidget {
+  static const boxHeight = 40.0;
+  static const boxWidth = 180.0;
+  static const boxPadding = 1.0;
+
+  final double x, y; // box position
+  final Color color;
+  final Function(Color c) onDrag;
+  final Function() onDrop;
+
+  ColorBox({
+    required this.x,
+    required this.y,
+    required this.color,
+    required this.onDrag,
+    required this.onDrop,
+  }) : super(key: ValueKey(color));
+
+  @override
+  Widget build(BuildContext context) {
+    final box = Padding(
+      padding: EdgeInsets.all(boxPadding),
+      child: Container(
+        width: boxWidth - boxPadding * 2,
+        height: boxHeight - boxPadding * 2,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(boxHeight / 5),
+        ),
+      ),
+    );
+
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 100),
+      left: x,
+      top: y,
+      child: Draggable(
+        onDragStarted: () => onDrag(color),
+        onDragEnd: (_) => onDrop(),
+        feedback: box,
+        childWhenDragging: SizedBox(width: boxWidth, height: boxHeight),
+        child: box,
+      ),
+    );
   }
 }
