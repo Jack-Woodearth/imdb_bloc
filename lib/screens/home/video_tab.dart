@@ -7,8 +7,6 @@ import 'package:imdb_bloc/constants/config_constants.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 import 'package:imdb_bloc/widgets/StackedPictures.dart';
 
-import 'game.dart';
-
 class VideoTab extends StatefulWidget {
   const VideoTab({super.key});
 
@@ -36,7 +34,7 @@ class _VideoTabState extends State<VideoTab> {
   @override
   Widget build(BuildContext context) {
     dp('VideoTab rebuild');
-    return GameTest();
+
     return ColorsGame();
     return SingleChildScrollView(
       child: SizedBox(
