@@ -18,6 +18,7 @@ import 'package:imdb_bloc/cubit/user_fav_photos_cubit.dart';
 import 'package:imdb_bloc/cubit/user_list_screen_filter_cubit.dart';
 import 'package:imdb_bloc/cubit/user_rated_cubit.dart';
 import 'package:imdb_bloc/cubit/user_watch_list_cubit.dart';
+import 'package:imdb_bloc/screens/movies_list/MoviesListScreenLazyWithIds.dart';
 import 'package:imdb_bloc/screens/settings/settings_home.dart';
 import 'package:imdb_bloc/screens/signin/imdb_signin.dart';
 import 'package:imdb_bloc/screens/user_lists/add_list.dart';
@@ -197,8 +198,9 @@ class _YouScreenState extends State<YouScreen> {
                             if (user.isLogin)
                               InkWell(
                                 onTap: () async {
-                                  //todo
-                                  // Get.to(() => const FavListsWidget());
+                                  pushRoute(
+                                      context: context,
+                                      screen: const FavListsWidget());
                                 },
                                 child: Card(
                                   margin: EdgeInsets.zero,
@@ -223,20 +225,31 @@ class _YouScreenState extends State<YouScreen> {
                               ),
 
                             if (user.isLogin)
-                              UserFavGalleriesWidget(
-                                cardHeight: _cardHeight,
+                              Card(
+                                margin: EdgeInsets.zero,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Center(
+                                    child: Builder(builder: (_) {
+                                      return UserFavGalleriesWidget(
+                                        cardHeight: _cardHeight,
+                                      );
+                                    }),
+                                  ),
+                                ),
                               ),
 
                             if (user.isLogin)
                               InkWell(
                                 onTap: () {
-                                  //todo
-                                  // Get.to(() => Obx(() => LongMovieListWrapper(
-                                  //     ids: Get.find<UserRatedTitlesController>()
-                                  //         .titles
-                                  //         .map((element) => element.mid!)
-                                  //         .toList(),
-                                  //     title: 'My rated titles')));
+                                  pushRoute(
+                                      context: context,
+                                      screen: MoviesListScreenLazyWithIds(
+                                          movieIds: context
+                                              .read<UserRatedCubit>()
+                                              .state
+                                              .ids,
+                                          name: 'My rated movies'));
                                 },
                                 child: Card(
                                   margin: EdgeInsets.zero,
@@ -498,51 +511,47 @@ class _FavListsWidgetState extends State<FavListsWidget> {
                       duration: const Duration(milliseconds: 500),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          height: 80, //todo
-                          // _listShowControl[index].show ? null : 0,
-                          child: UserListList(
-                            // listUrl: _listShowControl[index].listUrl,
-                            onDelete: (ctx) async {
-                              // var success = await deleteFavListApi(
-                              //     _listShowControl[index].listUrl);
-                              // if (success) {
-                              //   // _getData();
-                              //   _listShowControl[index].show = false;
-                              //   if (mounted) {
-                              //     setState(() {});
-                              //   }
-                              //   getFavListCountApi();
-                              //   ScaffoldMessenger.maybeOf(context)
-                              //       ?.showSnackBar(SnackBar(
-                              //           content: Row(
-                              //     children: [
-                              //       const Expanded(
-                              //           child:
-                              //               Text('List removed from favorite')),
-                              //       TextButton(
-                              //         onPressed: () async {
-                              //           var added = await addFavListApi(
-                              //               _listShowControl[index].listUrl);
-                              //           getFavListCountApi();
-                              //           _listShowControl[index].show = true;
-                              //           ScaffoldMessenger.maybeOf(context)
-                              //               ?.removeCurrentSnackBar();
-                              //           if (mounted) {
-                              //             setState(() {});
-                              //           }
-                              //         },
-                              //         child: const Text(
-                              //           'undo',
-                              //           style: TextStyle(color: Colors.blue),
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   )));
-                              // }
-                            },
-                            userList: _lists[index],
-                          ),
+                        child: UserListList(
+                          // listUrl: _listShowControl[index].listUrl,
+                          onDelete: (ctx) async {
+                            // var success = await deleteFavListApi(
+                            //     _listShowControl[index].listUrl);
+                            // if (success) {
+                            //   // _getData();
+                            //   _listShowControl[index].show = false;
+                            //   if (mounted) {
+                            //     setState(() {});
+                            //   }
+                            //   getFavListCountApi();
+                            //   ScaffoldMessenger.maybeOf(context)
+                            //       ?.showSnackBar(SnackBar(
+                            //           content: Row(
+                            //     children: [
+                            //       const Expanded(
+                            //           child:
+                            //               Text('List removed from favorite')),
+                            //       TextButton(
+                            //         onPressed: () async {
+                            //           var added = await addFavListApi(
+                            //               _listShowControl[index].listUrl);
+                            //           getFavListCountApi();
+                            //           _listShowControl[index].show = true;
+                            //           ScaffoldMessenger.maybeOf(context)
+                            //               ?.removeCurrentSnackBar();
+                            //           if (mounted) {
+                            //             setState(() {});
+                            //           }
+                            //         },
+                            //         child: const Text(
+                            //           'undo',
+                            //           style: TextStyle(color: Colors.blue),
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   )));
+                            // }
+                          },
+                          userList: _lists[index],
                         ),
                       ),
                     );
@@ -605,52 +614,54 @@ class UserFavGalleriesWidget extends StatelessWidget {
   final double cardHeight;
   @override
   Widget build(BuildContext context) {
-    return OpenContainer(
-      closedColor: Theme.of(context).cardColor,
-      openColor: Theme.of(context).cardColor,
-      transitionType: ContainerTransitionType.fadeThrough,
-      closedBuilder: ((context, action) =>
-          BlocBuilder<UserFavGalleriesCubit, List<String>>(
-            builder: (context, state) {
-              return FutureBuilder(
-                future:
-                    getGalleriesCovers(state.sublist(0, min(state.length, 3))),
-                builder: (BuildContext context,
-                    AsyncSnapshot<List<String>> snapshot) {
-                  return snapshot.hasData
-                      ? Column(
-                          children: [
-                            Expanded(
-                              child: ListsCoversStackPictures(
-                                  pictures: snapshot.data ?? [], tag: _tag),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                  '${snapshot.data?.length} favorite galleries'),
-                            ),
-                          ],
-                        )
-                      : const Center(child: CircularProgressIndicator());
-                },
-              );
+    return GestureDetector(
+      onTap: () {
+        pushRoute(
+            context: context,
+            screen: Scaffold(
+              appBar: AppBar(title: const Text('My favorite galleries')),
+              body: SafeArea(
+                child: SizedBox(
+                  height: 600,
+                  child: BlocBuilder<UserFavGalleriesCubit, List<String>>(
+                    builder: (context, state) {
+                      return ListView.builder(
+                        itemCount: state.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          var gid2 = state[index];
+                          return GalleryCard(gid: gid2);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ));
+      },
+      child: BlocBuilder<UserFavGalleriesCubit, List<String>>(
+        builder: (context, state) {
+          return FutureBuilder(
+            future: getGalleriesCovers(state.sublist(0, min(state.length, 3))),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+              return snapshot.hasData
+                  ? Column(
+                      children: [
+                        Expanded(
+                          child: ListsCoversStackPictures(
+                              pictures: snapshot.data ?? [], tag: _tag),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                              '${snapshot.data?.length} favorite galleries'),
+                        ),
+                      ],
+                    )
+                  : const Center(child: CircularProgressIndicator());
             },
-          )),
-      openBuilder: (context, action) => SafeArea(
-        child: SizedBox(
-          height: 600,
-          child: BlocBuilder<UserFavGalleriesCubit, List<String>>(
-            builder: (context, state) {
-              return ListView.builder(
-                itemCount: state.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var gid2 = state[index];
-                  return GalleryCard(gid: gid2);
-                },
-              );
-            },
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -705,11 +716,6 @@ class _UserListsCardOnYouScreenState extends State<UserListsCardOnYouScreen> {
       child: InkWell(
         onTap: () {
           pushRoute(context: context, screen: const UserListScreen());
-          //todo
-          // if (Get.find<UserListScreenFilterController>().listUrls.isNotEmpty) {
-          //   Get.to(() => const UserListScreen());
-          // }
-          // pushRoute(context: context, screen: userlissc)
         },
         child: Column(children: [
           Expanded(

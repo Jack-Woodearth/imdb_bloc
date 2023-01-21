@@ -55,8 +55,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Get.lazyPut(() => FilmographyController());
-    // _photosCtrl = Get.put(PersonScreenPhotosCtrl(), tag: widget.pid);
+    updateRecentViewed(widget.pid, context);
 
     _getData();
   }

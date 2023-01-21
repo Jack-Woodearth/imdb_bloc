@@ -69,7 +69,7 @@ final GoRouter router = GoRouter(
       path: '/title/:mid',
       builder: (BuildContext context, GoRouterState state) {
         var mid = state.params['mid']!;
-        updateRecentViewed(mid, context);
+        // updateRecentViewed(mid, context);
         return MovieFullDetailScreenLazyLoad(mid: mid);
       },
     ),
@@ -80,7 +80,7 @@ final GoRouter router = GoRouter(
         // var movie = state.queryParams['movie']!;
         // var movieBean2 = MovieBean.fromJson(jsonDecode(movie));
         MovieBean movieBean2 = state.extra as MovieBean;
-        updateRecentViewed(movieBean2.id!, context);
+        // updateRecentViewed(movieBean2.id!, context);
         return MovieFullDetailScreen(movieBean: movieBean2);
       },
     ),
@@ -88,7 +88,7 @@ final GoRouter router = GoRouter(
       path: '/person/:id',
       builder: (BuildContext context, GoRouterState state) {
         var personId = state.params['id']!;
-        updateRecentViewed(personId, context);
+        // updateRecentViewed(personId, context);
         return PersonDetailScreen(pid: personId);
       },
     ),

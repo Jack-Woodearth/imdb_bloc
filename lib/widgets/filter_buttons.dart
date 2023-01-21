@@ -64,46 +64,18 @@ class _FilterButtonsState extends State<FilterButtons> {
                           ? const SizedBox(
                               width: 0,
                             )
-                          : Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: Stack(
-                                children: [
-                                  ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15)),
-                                        backgroundColor: context.isDarkMode
-                                            ? ColorsUtils.lighten(
-                                                Theme.of(context)
-                                                    .colorScheme
-                                                    .surface)
-                                            : ColorsUtils.darken(
-                                                Theme.of(context)
-                                                    .colorScheme
-                                                    .surface),
-                                      ),
-                                      onPressed: () {
-                                        _onRemoveFilter(context, name);
-                                      },
-                                      child: Text(
-                                        state.filters[btnDisplayName(name)]
-                                            .toString(),
-                                        style: TextStyle(
-                                            color: context.isDarkMode
-                                                ? Colors.white
-                                                : Colors.black),
-                                      )),
-                                  const Positioned(
-                                      right: 5.0,
-                                      top: 5.0,
-                                      child: Icon(
-                                        Icons.close,
-                                        size: 13.0,
-                                      )),
-                                ],
-                              ),
-                            ),
+                          : Chip(
+                              elevation: 5.0,
+                              onDeleted: () {
+                                _onRemoveFilter(context, name);
+                              },
+                              label: Padding(
+                                padding: const EdgeInsets.all(6.0),
+                                child: Text(
+                                  state.filters[btnDisplayName(name)]
+                                      .toString(),
+                                ),
+                              )),
                     )
                     .toList(),
               ),

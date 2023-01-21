@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -43,8 +45,9 @@ class _YoutubeImageState extends State<YoutubeImage> {
       imageUrl = local;
     } else {
       try {
-        var resp = await MyDio().dio.put('$baseUrl/image',
-            data: {'url': widget.url, 'use_proxy': widget.useProxy});
+        var resp = await MyDio().dio.get('$baseUrl/image', queryParameters: {
+          'data': jsonEncode({'url': widget.url, 'use_proxy': widget.useProxy})
+        });
         if (reqSuccess(resp)) {
           var data = resp.data['result'];
           if (data != null) {

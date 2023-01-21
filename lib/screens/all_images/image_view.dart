@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -58,7 +59,7 @@ class _ImageViewState extends State<ImageView> {
       GlobalKey<ScaffoldMessengerState>();
 
   final FocusNode _focusNode = FocusNode();
-
+  final List<String> _showInfoHrefs = [];
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -164,8 +165,10 @@ class _ImageViewState extends State<ImageView> {
                             ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  IconButton(
-                                      onPressed: () {
+                                  StatefulBuilder(builder: (context, update) {
+                                    return ExpandIcon(
+                                      color: Colors.white,
+                                      onPressed: (v) {
                                         if (widget.images[index]
                                                 .imageViewerHref !=
                                             null) {
@@ -173,22 +176,15 @@ class _ImageViewState extends State<ImageView> {
                                             widget
                                                 .images[index].imageViewerHref!,
                                           );
+                                          setState(() {});
                                         }
                                       },
-                                      icon: AnimatedSwitcher(
-                                        duration:
-                                            const Duration(milliseconds: 200),
-                                        child: Icon(
-                                          _shouldShowInfoF(widget.images[index]
-                                                  .imageViewerHref!)
-                                              ? Icons.close
-                                              : Icons.info,
-                                          color: Colors.white,
-                                        ),
-                                      )),
+                                      isExpanded: _shouldShowInfoF(widget
+                                          .images[index].imageViewerHref!),
+                                    );
+                                  }),
                                   AnimatedSize(
                                     duration: const Duration(milliseconds: 200),
-                                    // curve: Curves.easeIn,
                                     child: SizedBox(
                                       height: _shouldShowInfoF(widget
                                               .images[index].imageViewerHref!)
@@ -227,7 +223,6 @@ class _ImageViewState extends State<ImageView> {
                                   ),
                                   const Center(
                                     child: CircularProgressIndicator(),
-                                    //  CircularProgressIndicator(),
                                   ),
                                 ],
                               )),
@@ -243,17 +238,11 @@ class _ImageViewState extends State<ImageView> {
   }
 
   void _toggleInfoWIdget(String href) {
-    // var t1 = DateTime.now();
     if (_shouldShowInfoF(href)) {
-      // _showInfoHrefs.remove(href);
-      // showInfoCtrl.showInfoHrefs.remove(href);//todo
+      _showInfoHrefs.remove(href);
     } else {
-      // showInfoCtrl.showInfoHrefs.add(href);//todo
+      _showInfoHrefs.add(href);
     }
-    // var t2 = DateTime.now();
-    // debugPrint(
-    //     '_toggleInfoWIdget time: ${t2.millisecondsSinceEpoch - t1.millisecondsSinceEpoch} ms');
-    // updateState(() {});
   }
 
   void _handleGesture(PhotoViewControllerValue controllerValue) {
@@ -267,7 +256,7 @@ class _ImageViewState extends State<ImageView> {
     }
   }
 
-  bool _shouldShowInfoF(String href) => true;
+  bool _shouldShowInfoF(String href) => _showInfoHrefs.contains(href);
 }
 
 class SaveImageButton extends StatelessWidget {
@@ -332,6 +321,14 @@ class _ToggleInfoButtonState extends State<ToggleInfoButton>
   bool _show = true;
   @override
   Widget build(BuildContext context) {
+    return ExpandIcon(
+      onPressed: (v) {
+        widget.onPressed();
+        _show = v;
+        setState(() {});
+      },
+      isExpanded: _show,
+    );
     return IconButton(
         onPressed: () {
           widget.onPressed();
@@ -349,11 +346,6 @@ class _ToggleInfoButtonState extends State<ToggleInfoButton>
         ));
   }
 }
-
-// class ImageViewController extends GetxController {
-//   var cur = 0.obs;
-//   var scrollable = true.obs;
-// }
 
 class PicPeopleMovieInfo extends StatefulWidget {
   const PicPeopleMovieInfo({Key? key, required this.href}) : super(key: key);

@@ -13,6 +13,7 @@ import 'package:imdb_bloc/cubit/user_watch_list_cubit.dart';
 import 'package:imdb_bloc/singletons/user.dart';
 import 'package:imdb_bloc/utils/db/db.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
+import 'package:imdb_bloc/utils/sp/sp_utils.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 

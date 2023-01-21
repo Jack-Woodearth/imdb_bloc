@@ -99,10 +99,13 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
   Future<void> _getData() async {
     if (_imageViewType == ImageViewType.userFavorite) {
       await updateUserFavPhotos(context);
-
+      _loading = false;
+      setState(() {});
       return;
     }
     if (_allPicsHasBeenLoaded) {
+      _loading = false;
+      setState(() {});
       return;
     }
     // EasyLoading.show();
@@ -110,7 +113,9 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
     _all.clear();
     _page = 1;
     _loading = true;
-
+    if (mounted) {
+      setState(() {});
+    }
     if (_imageViewType == ImageViewType.listPicture) {
       for (var p in widget.data.pictures ?? <ListPicture>[]) {
         _all.add(PhotoWithSubjectId(

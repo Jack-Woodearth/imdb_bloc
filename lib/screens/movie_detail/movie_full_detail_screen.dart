@@ -239,7 +239,7 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
   @override
   void initState() {
     super.initState();
-
+    updateRecentViewed(widget.movieBean.id!, context);
     _getData();
   }
 

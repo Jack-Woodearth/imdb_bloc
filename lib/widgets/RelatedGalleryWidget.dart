@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:imdb_bloc/screens/gallery/gallery_screen.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
 import '../apis/apis.dart';
 import '../beans/gallery.dart';
@@ -24,16 +26,17 @@ class _RelatedGalleryWidgetState extends State<RelatedGalleryWidget> {
   }
 
   _onTap() {
-    //todo
-    // Get.to(() => GalleryScreen(
-    //     gid: _imdbGalleries.first.gid!,
-    //     galleryTitle: _imdbGalleries.first.galleryTitle!));
+    pushRoute(
+        context: context,
+        screen: GalleryScreen(
+            gid: _imdbGalleries.first.gid!,
+            galleryTitle: _imdbGalleries.first.galleryTitle!));
   }
 
   @override
   Widget build(BuildContext context) {
     if (_imdbGalleries.isEmpty) {
-      return const SizedBox(
+      return const Center(
         child: CircularProgressIndicator(),
       );
     }
