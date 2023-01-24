@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
 import 'package:imdb_bloc/cubit/user_cubit_cubit.dart';
 import 'package:imdb_bloc/cubit/user_fav_photos_cubit.dart';
+import 'package:imdb_bloc/main.dart';
 import 'package:imdb_bloc/screens/all_images/cubit/images_selection_cubit.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:synchronized/synchronized.dart';
@@ -171,7 +172,7 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
           child: Scaffold(
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
-            floatingActionButton: _buildFLoatingActionButton(),
+            // floatingActionButton: _buildFLoatingActionButton(),
             appBar: _buildAppBar(context),
             body: SmartRefresher(
                 controller: _refreshController,
@@ -511,61 +512,113 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
     if (selected.isEmpty) {
       return;
     }
-    _key.currentState?.removeCurrentMaterialBanner();
-    _key.currentState?.showMaterialBanner(MaterialBanner(
-        content: Text(_imageViewType == ImageViewType.userFavorite
-            ? 'Remove ${selected.length} photo(s) from your favorite?'
-            : 'Add ${selected.length} photo(s) to your favorite?'),
-        actions: [
-          TextButton(
-              onPressed: () async {
-                var favPhotosCopy =
-                    []; //todo Get.find<UserFavPhotosController>().photos.toList();
-                var selectedCopy = selected.toList();
-                _key.currentState?.hideCurrentMaterialBanner();
-                if (_imageViewType == ImageViewType.userFavorite) {
-                  var success = await deleteUserFavPhotoApi(selected);
+    showDialog(
+        context: context,
+        builder: ((contextDialog) => AlertDialog(
+                title: Text(_imageViewType == ImageViewType.userFavorite
+                    ? 'Remove ${selected.length} photo(s) from your favorite?'
+                    : 'Add ${selected.length} photo(s) to your favorite?'),
+                actions: [
+                  TextButton(
+                      onPressed: () async {
+                        var favPhotosCopy =
+                            userFavPhotosCubit.state.photos.toList();
+                        var selectedCopy = selected.toList();
+                        _key.currentState?.hideCurrentMaterialBanner();
+                        if (_imageViewType == ImageViewType.userFavorite) {
+                          var success = await deleteUserFavPhotoApi(selected);
 
-                  await updateUserFavPhotos(context);
-                  debugPrint('statement114545787');
+                          await updateUserFavPhotos(contextDialog);
+                          debugPrint('statement114545787');
 
-                  //todo
-                  // _imagesCountController.count.value =
-                  //     Get.find<UserFavPhotosController>().photos.length;
-                  // _all = Get.find<UserFavPhotosController>().photos;
-                  // selected.clear();
-                  // _selectionController.isSelectionMode = false;//todo
+                          if (success) {
+                            _key.currentState?.hideCurrentSnackBar();
+                            _key.currentState?.showSnackBar(
+                                await buildFavPhotoDelSuccessSnackbar(
+                                    context: contextDialog,
+                                    photosToUndo: selectedCopy
+                                        .where(
+                                            (p0) => favPhotosCopy.contains(p0))
+                                        .toList()));
+                          } else {
+                            _key.currentState?.hideCurrentSnackBar();
+                            _key.currentState?.showSnackBar(
+                                const SnackBar(content: Text('Delete failed')));
+                          }
+                        } else {
+                          var success = await addUserFavPhotoApi(selected);
+                          updateUserFavPhotos(contextDialog);
+                          if (success) {
+                            _key.currentState?.showSnackBar(
+                                buildFavPhotoAddSuccessSnackBar(context,
+                                    preventDuplicates: false,
+                                    length: selected.length));
+                          }
+                        }
+                        Navigator.of(contextDialog).pop();
+                      },
+                      child: const Text('OK')),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(contextDialog).pop();
+                      },
+                      child: const Text('Cancel'))
+                ])));
+    // _key.currentState?.removeCurrentMaterialBanner();
+    // _key.currentState?.showMaterialBanner(MaterialBanner(
+    //     content: Text(_imageViewType == ImageViewType.userFavorite
+    //         ? 'Remove ${selected.length} photo(s) from your favorite?'
+    //         : 'Add ${selected.length} photo(s) to your favorite?'),
+    //     actions: [
+    //       TextButton(
+    //           onPressed: () async {
+    //             var favPhotosCopy =
+    //                 []; //todo Get.find<UserFavPhotosController>().photos.toList();
+    //             var selectedCopy = selected.toList();
+    //             _key.currentState?.hideCurrentMaterialBanner();
+    //             if (_imageViewType == ImageViewType.userFavorite) {
+    //               var success = await deleteUserFavPhotoApi(selected);
 
-                  if (success) {
-                    _key.currentState?.hideCurrentSnackBar();
-                    _key.currentState?.showSnackBar(
-                        await buildFavPhotoDelSuccessSnackbar(
-                            context: context,
-                            photosToUndo: selectedCopy
-                                .where((p0) => favPhotosCopy.contains(p0))
-                                .toList()));
-                  } else {
-                    _key.currentState?.hideCurrentSnackBar();
-                    _key.currentState?.showSnackBar(
-                        const SnackBar(content: Text('Delete failed')));
-                  }
-                } else {
-                  var success = await addUserFavPhotoApi(selected);
-                  updateUserFavPhotos(context);
-                  if (success) {
-                    _key.currentState?.showSnackBar(
-                        buildFavPhotoAddSuccessSnackBar(context,
-                            preventDuplicates: false, length: selected.length));
-                  }
-                }
-              },
-              child: const Text('OK')),
-          TextButton(
-              onPressed: () {
-                _key.currentState?.hideCurrentMaterialBanner();
-              },
-              child: const Text('Cancel'))
-        ]));
+    //               await updateUserFavPhotos(context);
+    //               debugPrint('statement114545787');
+
+    //               //todo
+    //               // _imagesCountController.count.value =
+    //               //     Get.find<UserFavPhotosController>().photos.length;
+    //               // _all = Get.find<UserFavPhotosController>().photos;
+    //               // selected.clear();
+    //               // _selectionController.isSelectionMode = false;//todo
+
+    //               if (success) {
+    //                 _key.currentState?.hideCurrentSnackBar();
+    //                 _key.currentState?.showSnackBar(
+    //                     await buildFavPhotoDelSuccessSnackbar(
+    //                         context: context,
+    //                         photosToUndo: selectedCopy
+    //                             .where((p0) => favPhotosCopy.contains(p0))
+    //                             .toList()));
+    //               } else {
+    //                 _key.currentState?.hideCurrentSnackBar();
+    //                 _key.currentState?.showSnackBar(
+    //                     const SnackBar(content: Text('Delete failed')));
+    //               }
+    //             } else {
+    //               var success = await addUserFavPhotoApi(selected);
+    //               updateUserFavPhotos(context);
+    //               if (success) {
+    //                 _key.currentState?.showSnackBar(
+    //                     buildFavPhotoAddSuccessSnackBar(context,
+    //                         preventDuplicates: false, length: selected.length));
+    //               }
+    //             }
+    //           },
+    //           child: const Text('OK')),
+    //       TextButton(
+    //           onPressed: () {
+    //             _key.currentState?.hideCurrentMaterialBanner();
+    //           },
+    //           child: const Text('Cancel'))
+    //     ]));
   }
 }
 

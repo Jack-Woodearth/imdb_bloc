@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
 import 'package:imdb_bloc/cubit/user_watch_list_cubit.dart';
 import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
+import 'package:imdb_bloc/screens/movie_detail/movie_details_screen_lazyload.dart';
 import 'package:imdb_bloc/screens/movie_detail/tv_seasons_info/cubit/tv_seasons_info_cubit.dart';
 import 'package:imdb_bloc/screens/movie_detail/tv_seasons_info/tv_seasons_info_screen.dart';
 import 'package:imdb_bloc/utils/colors.dart';
@@ -295,7 +296,10 @@ class _MovieDetailTopCardLongMultiSliversState
                     }
                     return InkWell(
                       onTap: () {
-                        context.push('/title${widget.movieBean.tvId}');
+                        pushRoute(
+                            context: context,
+                            screen: MovieFullDetailScreenLazyLoad(
+                                mid: widget.movieBean.tvId!));
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),

@@ -56,10 +56,12 @@ void main() async {
       create: (context) => UserRatedCubit(),
     ),
     BlocProvider(
-      create: (context) => UserFavPhotosCubit(),
+      create: (context) => userFavPhotosCubit,
     ),
   ], child: const MyApp()));
 }
+
+final UserFavPhotosCubit userFavPhotosCubit = UserFavPhotosCubit();
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);

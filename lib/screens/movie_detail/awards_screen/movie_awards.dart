@@ -406,7 +406,7 @@ class _AwardsDetailsWidgetState extends State<AwardsDetailsWidget>
   void _onTextTap(nominee) {
     var id = nominee['subject_id'].toString();
     if (id.startsWith('tt')) {
-      context.push('/title$id');
+      context.push('/title/$id');
     } else {
       context.push('/person/$id');
     }

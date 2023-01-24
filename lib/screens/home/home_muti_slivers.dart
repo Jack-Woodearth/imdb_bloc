@@ -1,6 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:imdb_bloc/screens/gallery/gallery_screen.dart';
+import 'package:imdb_bloc/screens/movies_list/MoviesListScreenLazyWithIds.dart';
+import 'package:imdb_bloc/screens/poll/poll_screen.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
 import 'package:sliver_tools/sliver_tools.dart';
 
@@ -17,6 +21,7 @@ import 'NewsListScroll.dart';
 import 'box_office_widget.dart';
 import 'home_title.dart';
 import 'home_top_slider.dart';
+import 'movie_list_detail.dart';
 import 'poster_list_scroll.dart';
 
 class HomeMultiSlivers {
@@ -197,7 +202,7 @@ class HomeMultiSlivers {
     var link = e.arguments?.linkTargetUrl ?? 'no linkTargetUrl';
     return InkWell(
       onTap: () {
-        _handFTorEpTap(e);
+        _handFTorEpTap(e, context);
       },
       child: Stack(
         children: [
@@ -216,34 +221,32 @@ class HomeMultiSlivers {
     );
   }
 
-  void _handFTorEpTap(FeaturedTodayOrEp e) {
+  void _handFTorEpTap(FeaturedTodayOrEp e, BuildContext context) {
     if ((e.arguments?.linkTargetUrl?.contains('list') == true ||
         e.arguments?.linkTargetUrl?.contains('/ls') == true)) {
-      //todo
-      // Get.to(
-      //     () => MovieListDetailScreen(
-      //           url: e.arguments!.linkTargetUrl!,
-      //         ),
-      //     transition: Transition.downToUp,
-      //     duration: transitionDuration);
+      pushRoute(
+          context: context,
+          screen: MovieListDetailScreen(
+            url: e.arguments!.linkTargetUrl!,
+          ));
     } else if (e.arguments?.linkTargetUrl?.contains('/rg') == true &&
         e.arguments?.linkTargetUrl?.contains('/mediaviewer/') == true) {
       var gid =
           RegExp(r'rg\d+').firstMatch(e.arguments!.linkTargetUrl!)!.group(0)!;
-      //todo
-      // Get.to(
-      //     () => GalleryScreen(
-      //           gid: gid,
-      //           galleryTitle: e.arguments?.displayTitle ?? '',
-      //         ),
-      //     transition: Transition.downToUp);
+      pushRoute(
+          context: context,
+          screen: GalleryScreen(
+            gid: gid,
+            galleryTitle: e.arguments?.displayTitle ?? '',
+          ));
     } else if (e.arguments!.linkTargetUrl != null &&
         e.arguments!.linkTargetUrl!.contains('/poll/')) {
-      //todo
-      // Get.to(() => PollScreen(
-      //     pollId: e.arguments!.linkTargetUrl!
-      //         .replaceAll('poll', '')
-      //         .replaceAll('/', '')));
+      pushRoute(
+          context: context,
+          screen: PollScreen(
+              pollId: e.arguments!.linkTargetUrl!
+                  .replaceAll('poll', '')
+                  .replaceAll('/', '')));
     }
   }
 

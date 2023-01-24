@@ -95,8 +95,9 @@ Future<SnackBar> buildFavPhotoDelSuccessSnackbar(
     action: SnackBarAction(
         label: 'Undo',
         onPressed: () async {
-          await addUserFavPhotoApi(photosToUndo);
-          updateUserFavPhotos(context);
+          addUserFavPhotoApi(photosToUndo)
+              .then((value) => updateUserFavPhotos(context));
+          // updateUserFavPhotos(context);
         }),
   );
 }

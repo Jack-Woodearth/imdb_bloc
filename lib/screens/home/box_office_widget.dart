@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:imdb_bloc/screens/box_office_screen/box_office_list.dart';
+import 'package:imdb_bloc/screens/movie_detail/movie_details_screen_lazyload.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
 import 'package:sliver_tools/sliver_tools.dart';
 
@@ -22,8 +25,9 @@ class BoxOfficeWidget extends StatelessWidget {
         TitleAndSeeAll(
           title: 'Top box office (US)',
           onTap: () {
-            //todo
-            // Get.to(() => BoxOfficeListScreen(boxOfficeList: boxOfficeBeans));
+            pushRoute(
+                context: context,
+                screen: BoxOfficeListScreen(boxOfficeBeans: boxOfficeBeans));
           },
         ),
 
@@ -37,8 +41,9 @@ class BoxOfficeWidget extends StatelessWidget {
             final e = boxOfficeBeans[index];
             return InkWell(
               onTap: () {
-                //todo
-                // Get.to(() => MovieFullDetailScreenLazyLoad(mid: e.mid!));
+                pushRoute(
+                    context: context,
+                    screen: MovieFullDetailScreenLazyLoad(mid: e.mid!));
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

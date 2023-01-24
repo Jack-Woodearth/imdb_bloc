@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,12 +7,12 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/apis/apis.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
-import 'package:imdb_bloc/cubit/loader_cubit.dart';
 import 'package:imdb_bloc/cubit/user_fav_people_cubit.dart';
 import 'package:imdb_bloc/enums/enums.dart';
 import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
 import 'package:imdb_bloc/screens/all_images/all_images.dart';
 import 'package:imdb_bloc/screens/movies_list/movies_list.dart';
+import 'package:imdb_bloc/screens/user_lists/select_list.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 import 'package:imdb_bloc/utils/string/string_utils.dart';
 import 'package:imdb_bloc/widgets/scaffold_with_loading_mask.dart';
@@ -312,16 +314,21 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
       appBar: AppBar(
         title: Text('${widget.movieBean.title} '),
         actions: [
-          IconButton(
-              onPressed: () {
-                _showMenuBottomSheet(context);
-              },
-              icon: const RotatedBox(
-                  quarterTurns: 1,
-                  child: Icon(
-                    Icons.more,
-                    size: 20,
-                  )))
+          if (Platform.isIOS || Platform.isMacOS)
+            IconButton(
+                onPressed: () {
+                  _showMenuBottomSheet(context);
+                },
+                icon: const Icon(
+                  Icons.more_horiz,
+                  size: 20,
+                ))
+          else
+            PopupMenuButton(
+                itemBuilder: ((context) => menus.entries
+                    .map((e) =>
+                        PopupMenuItem(onTap: e.value, child: Text(e.key)))
+                    .toList()))
         ],
       ),
       body: CustomScrollView(
@@ -715,32 +722,26 @@ class _MovieFullDetailScreenState extends State<MovieFullDetailScreen> {
     );
   }
 
+  late final menus = <String, VoidCallback>{
+    'Add to List': () {
+      pushRoute(
+          context: context,
+          screen: SelectListScreen(subjectId: widget.movieBean.id!));
+    },
+    'Add a Review': () {},
+    'Check in': () {},
+    'Share': () {}
+  };
   Future<dynamic> _showMenuBottomSheet(BuildContext context) {
     return showCupertinoModalPopup(
         context: context,
         // backgroundColor: Theme.of(context).cardColor,
         builder: (context) {
           return CupertinoActionSheet(
-            actions: [
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  context.push('/select_list/${widget.movieBean.id!}');
-                },
-                child: const Text('Add to List'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {},
-                child: const Text('Add a Review'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {},
-                child: const Text('Check in'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {},
-                child: const Text('Share'),
-              ),
-            ],
+            actions: menus.entries
+                .map((e) => CupertinoActionSheetAction(
+                    onPressed: e.value, child: Text(e.key)))
+                .toList(),
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
                 // Get.back();

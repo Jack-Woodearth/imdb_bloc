@@ -665,7 +665,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                   id: snapshot.data![index]),
                             ),
                             TextButton(
-                              // child: const Text('See details'),
                               child: const Icon(
                                 Icons.more_horiz,
                               ),

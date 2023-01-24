@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imdb_bloc/cubit/user_fav_photos_cubit.dart';
+import 'package:imdb_bloc/main.dart';
 
 import '../beans/user_fav_photos.dart';
 import '../constants/config_constants.dart';
@@ -47,9 +48,10 @@ Future<List<PhotoWithSubjectId>> listUserFavPhotoApi() async {
 }
 
 Future<void> updateUserFavPhotos(BuildContext context) async {
-  var read = context.read<UserFavPhotosCubit>();
+  // var read = context.read<UserFavPhotosCubit>();
+
   var photos = await listUserFavPhotoApi();
-  read.set(photos);
+  userFavPhotosCubit.set(photos);
 }
 
 bool isFavPhoto(PhotoWithSubjectId userFavPhoto, BuildContext context) {
