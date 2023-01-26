@@ -5,7 +5,7 @@ import '../utils/dio/dio.dart';
 import '../utils/dio/mydio.dart';
 
 Future<List<String>> eventsNames() async {
-  var response = await MyDio().dio.get(baseUrl + '/events/all');
+  var response = await MyDio().dio.get('$baseUrl/events/all');
   if (reqSuccess(response)) {
     return (response.data['result'] ?? []).cast<String>();
   }
@@ -14,7 +14,7 @@ Future<List<String>> eventsNames() async {
 }
 
 Future<EventDetail?> eventDetailApi(String eventName) async {
-  var response = await MyDio().dio.get(baseUrl + '/events/$eventName');
+  var response = await MyDio().dio.get('$baseUrl/events/$eventName');
   if (reqSuccess(response)) {
     var data = response.data;
     var res = data['result'];
@@ -43,6 +43,6 @@ class EventDetail {
 }
 
 Future<String?> getEventCoverApi(String eventName) async {
-  var data = await MyDio().get(baseUrl + '/events/${eventName}/cover');
+  var data = await MyDio().get('$baseUrl/events/$eventName/cover');
   return data['result'];
 }

@@ -1,15 +1,18 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:imdb_bloc/apis/basic_info.dart';
+import 'package:imdb_bloc/apis/event_history_api.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
+import 'package:imdb_bloc/utils/list_utils.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../apis/apis.dart';
 import '../../apis/list_repr_images_api.dart';
 import '../../apis/poll.dart';
 import '../../beans/box_office_bean.dart';
+import '../../beans/event_history_bean.dart';
 import '../../beans/featured_today.dart';
 import '../../beans/hero_videos.dart';
 import '../../beans/home_resp.dart';
@@ -133,12 +136,13 @@ class _HomeTabState extends State<HomeTab> {
 
   Future<List<String>> _getFtOrEpImageWrapper(
       FeaturedTodayOrEp featuredToday) async {
-    var linkTargetUrl2 = featuredToday.arguments?.linkTargetUrl;
-    if (linkTargetUrl2 == null) {
+    var linkTargetUrl = featuredToday.arguments?.linkTargetUrl;
+    if (linkTargetUrl == null) {
       return [];
     }
+    // return await getFtOrEpImage(linkTargetUrl);
     var list = await SpListCache.wrapped<String>(
-        getFtOrEpImage, [linkTargetUrl2],
+        getFtOrEpImage, [linkTargetUrl],
         timeout: const Duration(days: 3));
     return list;
   }
@@ -192,7 +196,25 @@ Future<List<String>> getFtOrEpImage(String linkTargetUrl) async {
   if (linkTargetUrl == '') {
     return [];
   }
-
+  if (linkTargetUrl.startsWith('/event/ev')) {
+    final data = parseEventHistoryDataByUrl(linkTargetUrl);
+    var eventHistoryBean = await getEventHistoryApi(null,
+        eventId: data.evId, year: data.year, number: data.number);
+    final ids = <String>[];
+    for (var award in eventHistoryBean?.history?.awards ?? <Awards>[]) {
+      for (var sub in award.subs ?? <Subs>[]) {
+        for (var nomination in sub.nominations ?? <Nominations>[]) {
+          for (var nominee in nomination.nominees ?? <Nominees>[]) {
+            ids.add(nominee.subjectId);
+            if (ids.length >= 3) {
+              var infos = await getBasicInfoApi(firstNOfList(ids, 3));
+              return infos.map((e) => e.image).toList();
+            }
+          }
+        }
+      }
+    }
+  }
   var listRet = await parseList(linkTargetUrl);
   if (listRet.isNotEmpty) {
     if (listRet.length >= 3) {
@@ -210,6 +232,7 @@ Future<List<String>> getFtOrEpImage(String linkTargetUrl) async {
 }
 
 Future<List<String>> parseList(String url) async {
+  //mediaviewer
   var re = RegExp(r'rg(\d+)/mediaviewer/rm\d+');
   if (re.hasMatch(url)) {
     var ret = <String>[];
@@ -225,6 +248,15 @@ Future<List<String>> parseList(String url) async {
     }
     return ret;
   }
+
+  //list
+  var listRe = RegExp(r'ls\d+');
+  var listMatch = listRe.firstMatch(url);
+  if (listMatch != null) {
+    return await getListReprImagesApi('/list/${listMatch.group(0)}');
+  }
+
+  //poll
   var rePoll = RegExp(r'/poll/\S+/');
   if (rePoll.hasMatch(url)) {
     var pollId = rePoll
@@ -245,6 +277,7 @@ Future<List<String>> parseList(String url) async {
     return ret;
   }
 
+  //list (old)
   var re2 = RegExp(r'/ls\d+/');
   if (!re2.hasMatch(url)) {
     return [];

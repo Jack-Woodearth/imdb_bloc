@@ -214,7 +214,10 @@ class _MovieDetailTopCardLongMultiSliversState
     return MultiSliver(
       children: [
         if (showTrailers && (PlatformUtils.screenAspectRatio(context) <= 1))
-          TrailersWidget(movieBean: widget.movieBean),
+          TrailersWidget(
+            movieBean: widget.movieBean,
+            trailerShowMovieDetailIcon: false,
+          ),
 
         if (PlatformUtils.screenAspectRatio(context) <= 1)
           _movieMainInfo(
@@ -225,7 +228,10 @@ class _MovieDetailTopCardLongMultiSliversState
           Row(
             children: [
               if (showTrailers)
-                Expanded(child: TrailersWidget(movieBean: widget.movieBean)),
+                Expanded(
+                    child: TrailersWidget(
+                        movieBean: widget.movieBean,
+                        trailerShowMovieDetailIcon: false)),
               Expanded(
                   child: _movieMainInfo(
                 context,

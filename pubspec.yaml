@@ -88,6 +88,7 @@ dependencies:
   image_cropper: ^3.0.1
   file_picker: ^5.2.5
   image: ^4.0.8
+  youtube_player_flutter: ^8.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -2,7 +2,7 @@ import '../beans/event_history_bean.dart';
 import '../constants/config_constants.dart';
 import '../utils/dio/mydio.dart';
 
-Future<EventHistoryBean?> getEventHistoryApi(String historyId,
+Future<EventHistoryBean?> getEventHistoryApi(String? historyId,
     {String? eventId, int? year, int? number}) async {
   try {
     var response = await BasicDio().dio.get('$baseUrl/event_history/$historyId',

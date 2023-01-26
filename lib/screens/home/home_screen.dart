@@ -14,6 +14,7 @@ import 'package:imdb_bloc/widgets/load_on_demand_widget.dart';
 
 import '../../widget_methods/widget_methods.dart';
 import '../user_profile/youscreen.dart';
+import '../video/video_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

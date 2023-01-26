@@ -15,6 +15,7 @@ import '../beans/new_list_result_resp.dart';
 import '../beans/user_fav_photos.dart';
 import 'dart:io';
 
+import '../screens/event/event_history_screen.dart';
 import '../screens/movies_list/movies_list.dart';
 import '../screens/people_screen/person_list_screen.dart';
 
@@ -259,4 +260,35 @@ void goHome(
   BuildContext context,
 ) {
   Navigator.popUntil(context, (route) => route.settings.name == '/');
+}
+
+void gotoEventScreenByUrl(String eventUrl, BuildContext context) {
+  EventHistoryData data = parseEventHistoryDataByUrl(eventUrl);
+  pushRoute(
+      context: context,
+      screen: EventHistoryScreen(
+        historyId: null,
+        eventId: data.evId,
+        year: data.year,
+        number: data.number,
+      ));
+}
+
+EventHistoryData parseEventHistoryDataByUrl(String eventUrl) {
+  var match = RegExp(r'/event/(ev\d+)/(\d+)/(\d+)').firstMatch(eventUrl);
+  final evId = (match?.group(1));
+  final year = (match?.group(2));
+  final number = (match?.group(3));
+  EventHistoryData data = EventHistoryData(
+      evId: evId,
+      year: int.tryParse(year ?? ''),
+      number: int.tryParse(number ?? ''));
+  return data;
+}
+
+class EventHistoryData {
+  String? evId;
+  int? year;
+  int? number;
+  EventHistoryData({this.evId, this.year, this.number});
 }

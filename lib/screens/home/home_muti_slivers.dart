@@ -53,10 +53,6 @@ class HomeMultiSlivers {
         SliverToBoxAdapter(
           child: HomeTopSlider(heroVideos: heroVideos),
         ),
-        // SliverList(
-        //     delegate: SliverChildBuilderDelegate(
-        //         (context, index) => HomeTopSlider(heroVideos: heroVideos),
-        //         childCount: 1)),
 
         //Featured today
         if (screenAspectRatio(context) <= 1)
@@ -175,15 +171,10 @@ class HomeMultiSlivers {
 
   Widget _buildFTOrEP(List<FeaturedTodayOrEp> items) {
     return (SizedBox(
-        // height: MediaQuery.of(context).size.width / 2,
         height: 250,
         child: PageView.builder(
-          // controller: PageController(initialPage: 0),
           itemCount: items.length,
-          onPageChanged: (index) {
-            // ftIndex = index;
-            // debugPrint(ftIndex);
-          },
+          onPageChanged: (index) {},
           itemBuilder: (context, index) {
             var e = items[index];
             return _buildEpOrFtItem(e, context);
@@ -192,7 +183,6 @@ class HomeMultiSlivers {
   }
 
   InkWell _buildEpOrFtItem(FeaturedTodayOrEp e, BuildContext context) {
-    // assert(e is EditorsPicks || e is FeaturedToday);
     var images = ftAndEpImagesMap[e.uniqId] ?? [];
     if (images.length < 3) {
       debugPrint(
@@ -250,21 +240,8 @@ class HomeMultiSlivers {
                   .replaceAll('poll', '')
                   .replaceAll('/', '')));
     } else {
-      var match = RegExp(r'/event/(ev\d+)/(\d+)/(\d+)')
-          .firstMatch(e.arguments?.linkTargetUrl ?? '');
-      final evId = (match?.group(1));
-      final year = (match?.group(2));
-      final number = (match?.group(3));
-      pushRoute(
-          context: context,
-          screen: EventHistoryScreen(
-            historyId: 'dummy',
-            eventId: evId,
-            year: int.tryParse(year ?? ''),
-            number: int.tryParse(number ?? ''),
-          ));
-      // pushRoute(
-      //     context: context, screen: EventHistoryScreen(historyId: historyId));
+      var eventUrl = e.arguments?.linkTargetUrl ?? '';
+      gotoEventScreenByUrl(eventUrl, context);
     }
   }
 

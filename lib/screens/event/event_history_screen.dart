@@ -16,12 +16,8 @@ import '../../constants/colors_constants.dart';
 
 class EventHistoryScreen extends StatefulWidget {
   const EventHistoryScreen(
-      {super.key,
-      required this.historyId,
-      this.eventId,
-      this.year,
-      this.number});
-  final String historyId;
+      {super.key, this.historyId, this.eventId, this.year, this.number});
+  final String? historyId;
   final String? eventId;
   final int? year;
   final int? number;
