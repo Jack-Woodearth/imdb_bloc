@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imdb_bloc/constants/config_constants.dart';
 import 'package:imdb_bloc/enums/enums.dart';
 import 'package:imdb_bloc/screens/all_images/all_images.dart';
+import 'package:imdb_bloc/utils/debug_utils.dart';
 
 import '../apis/apis.dart';
 import '../apis/birth_date.dart';
@@ -109,6 +110,7 @@ SliverToBoxAdapter buildSingleChildSliverList(Widget child) {
 }
 
 void pushRoute({required BuildContext context, required Widget screen}) {
+  dp('push roote: ${screen.runtimeType}');
   Navigator.of(context).push(PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => screen,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {

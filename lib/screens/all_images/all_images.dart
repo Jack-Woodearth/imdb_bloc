@@ -499,8 +499,11 @@ class _AllImagesScreenState extends State<AllImagesScreen> {
 
   void _toggleSelectAll(BuildContext context) {
     var cubit = context.read<ImagesSelectionCubit>();
-    if (cubit.state.selected.length < _all.length) {
-      cubit.setState(ImagesSelectionState(_all, true));
+    var all = _imageViewType == ImageViewType.userFavorite
+        ? userFavPhotosCubit.state.photos
+        : _all;
+    if (cubit.state.selected.length < all.length) {
+      cubit.setState(ImagesSelectionState(all, true));
     } else {
       cubit.setState(const ImagesSelectionState([], false));
     }

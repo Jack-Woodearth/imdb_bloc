@@ -6,7 +6,6 @@ import 'package:imdb_bloc/cubit/user_fav_people_cubit.dart';
 import 'package:imdb_bloc/screens/movies_list/MoviesListScreenLazyWithIds.dart';
 import 'package:imdb_bloc/screens/people_screen/person_list_screen.dart';
 import 'package:imdb_bloc/screens/person/cubit/person_photos_cubit.dart';
-import 'package:imdb_bloc/widgets/scaffold_with_loading_mask.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
@@ -17,6 +16,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:page_view_indicators/circle_page_indicator.dart';
 import '../../apis/apis.dart';
+import '../../apis/basic_info.dart';
 import '../../apis/birth_date.dart';
 import '../../apis/get_pics_api.dart';
 import '../../apis/person.dart';
@@ -38,6 +38,7 @@ import '../../widgets/TitleAndSeeAll.dart';
 import '../../widgets/TitleWithStartingYellowDivider.dart';
 import '../../widgets/YellowDivider.dart';
 import '../../widgets/RelatedGalleriesWidget.dart';
+import '../../widgets/blured_background.dart';
 import '../../widgets/my_network_image.dart';
 import '../all_images/all_images.dart';
 
@@ -56,15 +57,11 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
   void initState() {
     super.initState();
     updateRecentViewed(widget.pid, context);
-
     _getData();
   }
 
   final Lock _lockOfCommonMoviesBottomSheet = Lock();
-  // final List<String> _photos = [];
-  // late final PersonScreenPhotosCtrl _photosCtrl;
-  // List<String> _workedWithIds = [];
-  // List<MovieBean> filmography = [];
+
   List<MovieOfList?> _awardsMovies = [];
   List<AwardBean> _awards = [];
   List<String> _filmographyIds = [];
@@ -72,7 +69,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
   _getData() async {
     if (!widget.pid.startsWith('nm')) {
       EasyLoading.showError('Person does not exit');
-      // Get.back();
 
       return;
     }
@@ -187,9 +183,47 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
         _getPhotos().then((value) => personPhotosCubit.set(value));
         return personPhotosCubit;
       },
-      child: Builder(builder: (context) {
-        return ScaffoldWithLoadingMask(child: _buildScaffold(context));
-      }),
+      child: Stack(
+        children: [
+          if (_personResult != null) _buildScaffold(context),
+          AnimatedScale(
+            alignment: const Alignment(-0.9, 0.2),
+            duration: const Duration(milliseconds: 400),
+            scale: _personResult == null ? 1.0 : 0.0,
+            child: Scaffold(
+              appBar: AppBar(title: const Text('Person detail')),
+              body: IgnorePointer(
+                ignoring: true,
+                child: FutureBuilder(
+                    future: getBasicInfoApi([widget.pid]),
+                    builder: (context, snapshot) {
+                      return BlurredBackground(
+                        sigmaX: 50.0,
+                        sigmaY: 50.0,
+                        backgroundImageUrl:
+                            snapshot.data?.first.image ?? defaultAvatar,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            SizedBox(
+                                height: 300,
+                                child: PosterCardWrappedLazyLoadBean(
+                                    id: widget.pid)),
+                            Container(
+                              color: Colors.black45,
+                              width: 50,
+                              height: 50,
+                            ),
+                            const Center(child: CircularProgressIndicator())
+                          ],
+                        ),
+                      );
+                    }),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

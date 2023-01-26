@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:imdb_bloc/screens/event/event_history_screen.dart';
 import 'package:imdb_bloc/screens/gallery/gallery_screen.dart';
-import 'package:imdb_bloc/screens/movies_list/MoviesListScreenLazyWithIds.dart';
 import 'package:imdb_bloc/screens/poll/poll_screen.dart';
 import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
@@ -222,6 +222,8 @@ class HomeMultiSlivers {
   }
 
   void _handFTorEpTap(FeaturedTodayOrEp e, BuildContext context) {
+    print('e.arguments?.linkTargetUrl=${e.arguments?.linkTargetUrl}');
+
     if ((e.arguments?.linkTargetUrl?.contains('list') == true ||
         e.arguments?.linkTargetUrl?.contains('/ls') == true)) {
       pushRoute(
@@ -239,7 +241,7 @@ class HomeMultiSlivers {
             gid: gid,
             galleryTitle: e.arguments?.displayTitle ?? '',
           ));
-    } else if (e.arguments!.linkTargetUrl != null &&
+    } else if (e.arguments?.linkTargetUrl != null &&
         e.arguments!.linkTargetUrl!.contains('/poll/')) {
       pushRoute(
           context: context,
@@ -247,6 +249,22 @@ class HomeMultiSlivers {
               pollId: e.arguments!.linkTargetUrl!
                   .replaceAll('poll', '')
                   .replaceAll('/', '')));
+    } else {
+      var match = RegExp(r'/event/(ev\d+)/(\d+)/(\d+)')
+          .firstMatch(e.arguments?.linkTargetUrl ?? '');
+      final evId = (match?.group(1));
+      final year = (match?.group(2));
+      final number = (match?.group(3));
+      pushRoute(
+          context: context,
+          screen: EventHistoryScreen(
+            historyId: 'dummy',
+            eventId: evId,
+            year: int.tryParse(year ?? ''),
+            number: int.tryParse(number ?? ''),
+          ));
+      // pushRoute(
+      //     context: context, screen: EventHistoryScreen(historyId: historyId));
     }
   }
 

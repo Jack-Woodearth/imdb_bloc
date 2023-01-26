@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:group_button/group_button.dart';
 import 'package:imdb_bloc/cubit/loader_cubit.dart';
+import 'package:imdb_bloc/screens/event/event_history_screen.dart';
+import 'package:imdb_bloc/screens/movie_detail/awards_screen/AwardsScreen.dart';
+import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 import 'package:imdb_bloc/widgets/loader.dart';
 
 import 'package:sliver_tools/sliver_tools.dart';
@@ -44,7 +47,8 @@ class _MovieAwardsWidgetState extends State<MovieAwardsWidget> {
         TitleAndSeeAll(
             title: 'Awards',
             onTap: () {
-              GoRouter.of(context).push('/awards/${widget.mid}');
+              // GoRouter.of(context).push('/awards/${widget.mid}');
+              pushRoute(context: context, screen: AwardsScreen(id: widget.mid));
             }),
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -249,7 +253,11 @@ class _AwardsDetailsWidgetState extends State<AwardsDetailsWidget>
                     return Card(
                       child: InkWell(
                         onTap: () async {
-                          context.push('/event_history/$historyId');
+                          pushRoute(
+                              context: context,
+                              screen: EventHistoryScreen(
+                                historyId: historyId,
+                              ));
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),

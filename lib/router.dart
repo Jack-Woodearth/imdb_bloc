@@ -31,13 +31,13 @@ import 'screens/person/cubit/person_photos_cubit.dart';
 class MyRouteObserver extends RouteObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
-    dp('route pushed... last: ${previousRoute?.settings.name}(${previousRoute?.settings.arguments}) now: ${route.settings.name}(${route.settings.arguments}) ');
+    // dp('route pushed... last: ${previousRoute?.settings.name}(${previousRoute?.settings.arguments}) now: ${route.settings.name}(${route.settings.arguments}) ');
     super.didPush(route, previousRoute);
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
-    dp('route popped... now: ${previousRoute?.settings.name}(${previousRoute?.settings.arguments}) last: ${route.settings.name}(${route.settings.arguments}) ');
+    // dp('route popped... now: ${previousRoute?.settings.name}(${previousRoute?.settings.arguments}) last: ${route.settings.name}(${route.settings.arguments}) ');
 
     super.didPop(route, previousRoute);
   }
