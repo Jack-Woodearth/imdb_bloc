@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 const isDebug = true;
-const String serverDebug = 'http://192.168.42.48:18088';
-const String server = 'https://cn-ah-dx-2.natfrp.cloud:58475';
+const String serverDebug = 'http://192.168.31.162:18088';
+const String server = 'http://175.24.230.203:18088';
 const String serverCurrent = isDebug ? serverDebug : server;
 const String userUrl = '$serverCurrent/api/v1/users';
 const String baseUrl = '$serverCurrent/api/v1/imdb';

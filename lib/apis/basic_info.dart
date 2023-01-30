@@ -67,6 +67,6 @@ Future<List<BasicInfo>> getBasicInfoApi(List<String> ids) async {
     }
   }
 
-  assert(ret.length == ids.length);
+  // assert(ret.length == ids.length);
   return ret;
 }

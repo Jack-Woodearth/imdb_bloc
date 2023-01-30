@@ -6,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:imdb_bloc/screens/home/home_tab.dart';
 import 'package:imdb_bloc/screens/home/search_tab.dart';
-import 'package:imdb_bloc/screens/home/video_tab.dart';
 import 'package:imdb_bloc/utils/colors.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 import 'package:imdb_bloc/utils/string/string_utils.dart';

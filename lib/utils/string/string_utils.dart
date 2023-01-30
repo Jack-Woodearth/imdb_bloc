@@ -153,3 +153,10 @@ double? findNumberInString(String src) {
     }
   }
 }
+
+bool isValidEmail(String? email) {
+  if (email == null) {
+    return false;
+  }
+  return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+}
