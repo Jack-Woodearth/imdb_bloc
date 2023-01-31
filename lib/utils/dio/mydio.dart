@@ -5,10 +5,6 @@ import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:go_router/go_router.dart';
-import 'package:imdb_bloc/cubit/user_cubit_cubit.dart';
 import 'package:imdb_bloc/singletons/user.dart';
 import 'package:imdb_bloc/utils/debug_utils.dart';
 
@@ -16,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 
 import '../../constants/config_constants.dart';
-import '../isolates/common_woker_isolate.dart';
 
 class ImdbLoginInterceptors extends Interceptor {
   @override
@@ -68,6 +63,30 @@ class MyDio extends BasicDio {
     var data = response.data as Map<String, dynamic>;
     preferences.setString(key, jsonEncode(data));
     return data;
+  }
+}
+
+class ImdbWithCaptchaDio extends MyDio {
+  final String captchaId;
+  final String captchaCode;
+
+  ImdbWithCaptchaDio({required this.captchaId, required this.captchaCode}) {
+    dio.interceptors.add(
+        CaptchaInterceptor(captchaId: captchaId, captchaCode: captchaCode));
+  }
+}
+
+class CaptchaInterceptor extends Interceptor {
+  final String captchaId;
+  final String captchaCode;
+
+  CaptchaInterceptor({required this.captchaId, required this.captchaCode});
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    options.queryParameters['captcha_id'] = captchaId;
+    options.queryParameters['captcha_code'] = captchaCode;
+
+    return super.onRequest(options, handler);
   }
 }
 

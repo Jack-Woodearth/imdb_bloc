@@ -481,14 +481,17 @@ Future<NewMovieListRespResult?> getNewListMoviesApi(
 }
 
 class SignInApis {
-  static Future<dynamic> getEmailCode(String email) async {
+  static Future<dynamic> getEmailCode(String email,
+      {required String captchaCode, required String captchaId}) async {
     if (!isEmail(email)) {
       return null;
     }
 
-    var response = await MyDio().dio.post(
-        '$userUrl/ajax_send_email_verification_code',
-        data: {'uid': user.uid, 'to': email});
+    var response =
+        await ImdbWithCaptchaDio(captchaCode: captchaCode, captchaId: captchaId)
+            .dio
+            .post('$userUrl/ajax_send_email_verification_code',
+                data: {'uid': user.uid, 'to': email});
 
     return response.data;
   }

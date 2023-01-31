@@ -1,31 +1,48 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:go_router/go_router.dart';
+import 'package:imdb_bloc/apis/apis.dart';
 import 'package:imdb_bloc/apis/captcha.dart';
 
 class CaptchaWidget extends StatefulWidget {
-  const CaptchaWidget({super.key});
-
+  const CaptchaWidget({
+    super.key,
+    required this.email,
+  });
+  final String email;
   @override
   State<CaptchaWidget> createState() => _CaptchaWidgetState();
 }
 
 class _CaptchaWidgetState extends State<CaptchaWidget> {
-  Future<Captcha> future = getCaptchaApi();
+  late Future<Captcha?> future = getCaptcha();
+  String captchaCode = '';
+  String captchaId = '';
+  Future<Captcha?> getCaptcha() async {
+    final cap = await getCaptchaApi();
+    captchaId = cap?.id ?? '';
+    return cap;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         FutureBuilder(
-          future: future,
+          future: getCaptcha(),
           builder: (BuildContext context, snapshot) {
-            return snapshot.data?.captcha == null
+            return snapshot.connectionState != ConnectionState.done
                 ? const Center(
                     child: CircularProgressIndicator(),
                   )
-                : Image.memory(base64Decode(snapshot.data!.captcha));
+                : snapshot.data?.captcha == null
+                    ? const Text(
+                        'Getting Captcha failed due to too frequent requests. Please wait a bit.',
+                        style: TextStyle(color: Colors.red),
+                      )
+                    : Image.memory(base64Decode(snapshot.data!.captcha));
           },
         ),
         IconButton(
@@ -33,7 +50,22 @@ class _CaptchaWidgetState extends State<CaptchaWidget> {
               future = getCaptchaApi();
               setState(() {});
             },
-            icon: Icon(Icons.refresh))
+            icon: const Icon(Icons.refresh)),
+        TextField(
+          onChanged: (value) => captchaCode = value,
+        ),
+        TextButton(
+            onPressed: () async {
+              var emailCodeData = await SignInApis.getEmailCode(widget.email,
+                  captchaCode: captchaCode, captchaId: captchaId);
+              if (emailCodeData['code'] == 200) {
+                EasyLoading.showSuccess('Email sent');
+                GoRouter.of(context).pop();
+              } else {
+                EasyLoading.showError(emailCodeData['msg'].toString());
+              }
+            },
+            child: const Text('Send email verification code'))
       ],
     );
   }

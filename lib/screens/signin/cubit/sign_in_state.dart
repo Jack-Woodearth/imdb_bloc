@@ -15,11 +15,13 @@ class SignInData {
   String? passwordConfirmation;
   String? email;
   String? verifyCode;
+  String? captcha;
 
   SignInData(
       {this.verifyCode,
       required this.username,
       required this.password,
       this.email,
-      this.passwordConfirmation});
+      this.passwordConfirmation,
+      this.captcha});
 }

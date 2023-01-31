@@ -192,13 +192,10 @@ class _SignInInputsState extends State<SignInInputs> {
                                                     AlertDialog(
                                                       title: const Text(
                                                           'Input captcha'),
-                                                      content: CaptchaWidget(),
+                                                      content: CaptchaWidget(
+                                                        email: data.email ?? '',
+                                                      ),
                                                     )));
-                                            // final code =
-                                            //     await SignInApis.getEmailCode(
-                                            //         data.email ?? '');
-                                            // EasyLoading.showSuccess(
-                                            //     'Code was sent to your email');
                                           }
                                         : null,
                                     child: const Text('Send code'),
@@ -337,7 +334,7 @@ class SignInButton extends StatelessWidget {
                         ? null
                         : MaterialStateColor.resolveWith(
                             (states) => Theme.of(context).cardColor)),
-                onPressed: () {
+                onPressed: () async {
                   if (state.isLogin) {
                     context.read<SignInCubit>().set(isLogin: false);
 
@@ -345,6 +342,16 @@ class SignInButton extends StatelessWidget {
                   }
                   if (formKey.currentState?.validate() != true) {
                     return;
+                  }
+                  var response = await SignInApis.register(SignInUser(
+                      username: data.username,
+                      password: data.password,
+                      email: data.email,
+                      emailCode: data.verifyCode));
+                  if (reqSuccess(response)) {
+                    EasyLoading.showSuccess('Sign up success');
+                  } else {
+                    EasyLoading.showError('$response');
                   }
                 },
                 child: Text('Sign up',
