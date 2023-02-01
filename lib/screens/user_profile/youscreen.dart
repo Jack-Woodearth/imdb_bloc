@@ -19,6 +19,7 @@ import 'package:imdb_bloc/cubit/user_list_screen_filter_cubit.dart';
 import 'package:imdb_bloc/cubit/user_rated_cubit.dart';
 import 'package:imdb_bloc/cubit/user_watch_list_cubit.dart';
 import 'package:imdb_bloc/screens/movies_list/MoviesListScreenLazyWithIds.dart';
+import 'package:imdb_bloc/screens/people_screen/person_list_screen.dart';
 import 'package:imdb_bloc/screens/settings/settings_home.dart';
 import 'package:imdb_bloc/screens/signin/imdb_signin.dart';
 import 'package:imdb_bloc/screens/user_lists/add_list.dart';
@@ -343,7 +344,12 @@ class _YouScreenState extends State<YouScreen> {
                     return TitleAndSeeAll(
                         title: 'Watch list',
                         label: '${state.movies.length}',
-                        onTap: () {});
+                        onTap: () {
+                          pushRoute(
+                              context: context,
+                              screen: MoviesListScreenLazyWithIds(
+                                  movieIds: state.ids, name: 'Watch list'));
+                        });
                   },
                 ),
                 BlocProvider(
@@ -409,7 +415,15 @@ class _YouScreenState extends State<YouScreen> {
                         TitleAndSeeAll(
                             title: 'Favorite people',
                             label: '${state.people.length}',
-                            onTap: () {}),
+                            onTap: () {
+                              pushRoute(
+                                  context: context,
+                                  screen: PeopleListScreen(
+                                      data: PeopleListScreenData(
+                                          ids: state.ids,
+                                          count: state.ids.length,
+                                          title: 'Favorite people')));
+                            }),
                         SizedBox(
                           height: 250,
                           child: ListView.builder(
@@ -433,9 +447,9 @@ class _YouScreenState extends State<YouScreen> {
                     return Column(
                       children: [
                         TitleAndSeeAll(
-                            title: 'Recently viewed',
-                            label: '${state.recentViewedBeans.length}',
-                            onTap: () {}),
+                          title: 'Recently viewed',
+                          label: '${state.recentViewedBeans.length}',
+                        ),
                         SizedBox(
                           height: 250,
                           child: ListView.builder(

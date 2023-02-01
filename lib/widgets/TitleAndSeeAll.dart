@@ -5,11 +5,11 @@ import 'see_all.dart';
 
 class TitleAndSeeAll extends StatelessWidget {
   const TitleAndSeeAll(
-      {Key? key, required this.title, this.label = '', required this.onTap})
+      {Key? key, required this.title, this.label = '', this.onTap})
       : super(key: key);
   final String title;
   final String label;
-  final Function() onTap;
+  final Function()? onTap;
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -36,13 +36,14 @@ class TitleAndSeeAll extends StatelessWidget {
             ],
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: SeeAll(onTap: onTap),
+        if (onTap != null)
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: SeeAll(onTap: onTap!),
+            ),
           ),
-        ),
       ],
     );
   }

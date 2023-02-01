@@ -38,6 +38,9 @@ class BoxOfficeWidget extends StatelessWidget {
         if (boxOfficeBeans.isNotEmpty)
           SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
+            if (index >= boxOfficeBeans.length) {
+              return const SizedBox();
+            }
             final e = boxOfficeBeans[index];
             return InkWell(
               onTap: () {

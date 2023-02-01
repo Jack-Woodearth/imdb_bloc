@@ -40,8 +40,10 @@ class _MoviesListScreenLazyWithIdsState
       future: future(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
           );
         }
         return MoviesListScreen(

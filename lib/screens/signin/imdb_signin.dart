@@ -353,6 +353,7 @@ class SignInButton extends StatelessWidget {
   }
 
   Future<void> signIn(BuildContext context) async {
+    EasyLoading.show();
     UserCubit userCubit = context.read<UserCubit>();
     var response = await SignInApis.login(SignInUser(
         username: data.username, password: await encryptPwd(data.password)));
@@ -376,5 +377,6 @@ class SignInButton extends StatelessWidget {
     } else {
       EasyLoading.showError('${response.data['msg']}');
     }
+    EasyLoading.dismiss();
   }
 }

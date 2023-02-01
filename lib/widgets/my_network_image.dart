@@ -19,23 +19,6 @@ class MyNetworkImage extends StatelessWidget {
     return Image(
       errorBuilder: (context, error, stackTrace) => const Center(
           child: Text('Oops. There is some error with this picture.')),
-      // loadingBuilder: (context, child, loadingProgress) {
-      //   if (loadingProgress == null) {
-      //     return child;
-      //   }
-      //   if (placeHolder != null) {
-      //     return placeHolder!;
-      //   }
-      //   return Center(
-      //     child: CircularProgressIndicator(
-      //       value: loadingProgress.expectedTotalBytes != null
-      //           ? loadingProgress.cumulativeBytesLoaded /
-      //               loadingProgress.expectedTotalBytes!
-      //           : null,
-      //     ),
-      //   );
-      // },
-
       fit: fit,
       frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
           frame == null

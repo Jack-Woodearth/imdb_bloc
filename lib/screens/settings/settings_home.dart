@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'methods_collections.dart';
 
@@ -23,6 +24,21 @@ class SettingsHomeScreen extends StatelessWidget {
               });
             },
           ),
+          SettingsTile.navigation(
+            title: const Text('Clear cache'),
+            onPressed: (context) {
+              showConfirmDialog(context, 'Clear all cache?', () {
+                EasyLoading.show();
+                SharedPreferences.getInstance().then((value) {
+                  value.clear().then((value) {
+                    EasyLoading.showSuccess('Cache cleared');
+
+                    Navigator.of(context).pop();
+                  });
+                });
+              });
+            },
+          )
         ])
       ]),
     );

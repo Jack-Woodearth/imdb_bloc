@@ -233,6 +233,13 @@ Future<List<String>> getFtOrEpImage(String linkTargetUrl) async {
 
 Future<List<String>> parseList(String url) async {
   //mediaviewer
+
+  //list
+  var listRe = RegExp(r'ls\d+');
+  var listMatch = listRe.firstMatch(url);
+  if (listMatch != null) {
+    return await getListReprImagesApi('/list/${listMatch.group(0)}');
+  }
   var re = RegExp(r'rg(\d+)/mediaviewer/rm\d+');
   if (re.hasMatch(url)) {
     var ret = <String>[];
@@ -248,14 +255,6 @@ Future<List<String>> parseList(String url) async {
     }
     return ret;
   }
-
-  //list
-  var listRe = RegExp(r'ls\d+');
-  var listMatch = listRe.firstMatch(url);
-  if (listMatch != null) {
-    return await getListReprImagesApi('/list/${listMatch.group(0)}');
-  }
-
   //poll
   var rePoll = RegExp(r'/poll/\S+/');
   if (rePoll.hasMatch(url)) {

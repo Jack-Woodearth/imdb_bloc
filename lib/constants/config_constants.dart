@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const isDebug = true;
+const isDebug = false;
 const String serverDebug = 'http://192.168.31.162:18088';
 const String server = 'http://175.24.230.203:18088';
 const String serverCurrent = isDebug ? serverDebug : server;

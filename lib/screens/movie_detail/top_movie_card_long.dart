@@ -12,6 +12,7 @@ import 'package:imdb_bloc/screens/all_cast/all_cast.dart';
 import 'package:imdb_bloc/screens/movie_detail/movie_details_screen_lazyload.dart';
 import 'package:imdb_bloc/screens/movie_detail/tv_seasons_info/cubit/tv_seasons_info_cubit.dart';
 import 'package:imdb_bloc/screens/movie_detail/tv_seasons_info/tv_seasons_info_screen.dart';
+import 'package:imdb_bloc/screens/person/person_detail_screen.dart';
 import 'package:imdb_bloc/utils/colors.dart';
 import 'package:imdb_bloc/utils/string/string_utils.dart';
 import 'package:imdb_bloc/widget_methods/widget_methods.dart';
@@ -254,7 +255,7 @@ class _MovieDetailTopCardLongMultiSliversState
           ),
         ),
         // top cast scroll
-        _topCast(),
+        _buildTopCast(),
         const SizedBox(
           height: 20,
         ),
@@ -400,7 +401,7 @@ class _MovieDetailTopCardLongMultiSliversState
     );
   }
 
-  Widget _topCast() {
+  Widget _buildTopCast() {
     if (widget.movieBean.topCast?.isNotEmpty != true) {
       return const SizedBox();
     }
@@ -415,8 +416,8 @@ class _MovieDetailTopCardLongMultiSliversState
             var e = widget.movieBean.topCast![index];
             return InkWell(
               onTap: () {
-                //todo
-                // Get.to(() => PersonDetailScreen(pid: e.id!));
+                pushRoute(
+                    context: context, screen: PersonDetailScreen(pid: e.id!));
               },
               child: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
