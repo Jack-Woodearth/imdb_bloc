@@ -1,6 +1,6 @@
 # imdb_bloc
 
-An flutter copy of the IMDb app, using the flutter_bloc package as state management tool.
+An flutter copy of the IMDb app, using the [flutter_bloc](https://pub.dev/packages/flutter_bloc) package as state management tool.
 | Function                    | Status   |
 | --------------------------- | -------- |
 | Signing in / up             | Finished |
