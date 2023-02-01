@@ -5,7 +5,7 @@ import '../constants/config_constants.dart';
 import '../utils/dio/mydio.dart';
 import '../utils/string/string_utils.dart';
 
-Future<List<SearchMovieSuggestBean>?> searchMovieSuggestApi(
+Future<List<SearchMovieSuggestBean>?> suggestMoviesApi(
   String title,
 ) async {
   if (isBlank(title)) {

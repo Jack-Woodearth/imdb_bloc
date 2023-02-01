@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:imdb_bloc/apis/watchlist_api.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
+import 'package:imdb_bloc/cubit/user_watch_list_cubit.dart';
 
 class WatchListIcon extends StatelessWidget {
   const WatchListIcon({
@@ -13,29 +16,30 @@ class WatchListIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        //todo
-        // await handleUpdateWatchListOrFavPeople(id, context);
+        updateWatchListOrFavPeople(id, context);
       },
       child: SizedBox(
         width: 30,
         child: AspectRatio(
             aspectRatio: 3 / 4,
-            child: CustomPaint(
-              painter: BookMarkPainter(
-                strokeColor: false //todo
-                    ? ImdbColors.themeYellow
-                    : Colors.black87.withOpacity(0.5),
-                strokeWidth: 10,
-                paintingStyle: PaintingStyle.fill,
-              ),
-              child: const Center(
-                child: Icon(
-                  false //todo
-                      ? Icons.check
-                      : Icons.add,
-                  color: Colors.white,
-                ),
-              ),
+            child: BlocBuilder<UserWatchListCubit, UserWatchListState>(
+              builder: (context, state) {
+                return CustomPaint(
+                  painter: BookMarkPainter(
+                    strokeColor: state.ids.contains(id)
+                        ? ImdbColors.themeYellow
+                        : Colors.black87.withOpacity(0.5),
+                    strokeWidth: 10,
+                    paintingStyle: PaintingStyle.fill,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      state.ids.contains(id) ? Icons.check : Icons.add,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              },
             )),
       ),
     );

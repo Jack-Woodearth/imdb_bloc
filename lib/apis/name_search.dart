@@ -1,9 +1,9 @@
 import '../constants/config_constants.dart';
 import '../utils/dio/mydio.dart';
 
-Future<NameSearchResult> nameSearch(String name, {int start = 1}) async {
+Future<NameSearchResult> nameSearch(String name, {int page = 1}) async {
   var response = await BasicDio().dio.get('$baseUrl/search/people',
-      queryParameters: {'name': name, 'start': start});
+      queryParameters: {'name': name, 'page': page});
   if (response.data['result'] == null) {
     return NameSearchResult(count: 0, ids: []);
   }

@@ -30,7 +30,10 @@ class _ImdbSignInScreenState extends State<ImdbSignInScreen> {
   // var username = 'imdb1';
   // var password = '123456dd';
   final formKey = GlobalKey<FormState>();
-  final data = SignInData(username: 'imdb1', password: '123456dd');
+  final data = isDebug
+      ? SignInData(
+          username: 'imdb1', password: '123456dd', email: 'dusic1997@sina.com')
+      : SignInData(username: '', password: '');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -300,29 +303,7 @@ class SignInButton extends StatelessWidget {
                     //     'Username and/or password is invalid');
                     return;
                   }
-                  var response = await SignInApis.login(SignInUser(
-                      username: data.username,
-                      password: await encryptPwd(data.password)));
-                  // print(response.data);
-                  if (reqSuccess(response)) {
-                    EasyLoading.showSuccess('Sign in success');
-
-                    user = User(
-                        isLogin: true,
-                        uid: '${response.data['uid']}',
-                        username: data.username,
-                        token: response.data['mysitetoken']);
-                    userCubit.setUser(user);
-
-                    // getFavListsCount(favListCountCubit);
-                    initWithContext(context);
-                    // of.go('/');
-                    goHome(context);
-                    var sp = await SharedPreferences.getInstance();
-                    sp.setString(userObjKey, jsonEncode(user.toJson()));
-                  } else {
-                    EasyLoading.showError('${response.data['msg']}');
-                  }
+                  await signIn(context);
                 },
                 child: Text(
                   'Sign in',
@@ -350,6 +331,7 @@ class SignInButton extends StatelessWidget {
                       emailCode: data.verifyCode));
                   if (reqSuccess(response)) {
                     EasyLoading.showSuccess('Sign up success');
+                    await signIn(context);
                   } else {
                     EasyLoading.showError('$response');
                   }
@@ -361,5 +343,31 @@ class SignInButton extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> signIn(BuildContext context) async {
+    UserCubit userCubit = context.read<UserCubit>();
+    var response = await SignInApis.login(SignInUser(
+        username: data.username, password: await encryptPwd(data.password)));
+    // print(response.data);
+    if (reqSuccess(response)) {
+      EasyLoading.showSuccess('Sign in success');
+
+      user = User(
+          isLogin: true,
+          uid: '${response.data['uid']}',
+          username: data.username,
+          token: response.data['mysitetoken']);
+      userCubit.setUser(user);
+
+      // getFavListsCount(favListCountCubit);
+      initWithContext(context);
+      // of.go('/');
+      goHome(context);
+      var sp = await SharedPreferences.getInstance();
+      sp.setString(userObjKey, jsonEncode(user.toJson()));
+    } else {
+      EasyLoading.showError('${response.data['msg']}');
+    }
   }
 }

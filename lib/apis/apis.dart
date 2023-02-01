@@ -499,7 +499,7 @@ class SignInApis {
   static Future<Response> register(SignInUser user) async {
     var resp = await Dio().post('$userUrl/ajax_signup', data: {
       'username': user.username,
-      'password': user.password,
+      'password': await encryptPwd(user.password),
       'email': user.email,
       'email_code': user.emailCode
     });

@@ -160,12 +160,6 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
                         widget.data.newMovieListRespResult.count) {
                       _enablePullUp = false;
                     }
-                    // if (widget.data.newMovieListRespResult.next == null) {
-                    //   widget.data.newMovieListRespResult.count =
-                    //       widget.data.newMovieListRespResult.movies?.length;
-                    //   dp('widget.data.newMovieListRespResult.count =${widget.data.newMovieListRespResult.count}');
-                    //   _enablePullUp = false;
-                    // }
 
                     if (mounted) {
                       setState(() {});

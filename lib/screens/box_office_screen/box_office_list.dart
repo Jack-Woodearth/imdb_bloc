@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imdb_bloc/constants/colors_constants.dart';
+import 'package:imdb_bloc/utils/common.dart';
 import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
 import '../../beans/box_office_bean.dart';
@@ -50,57 +51,63 @@ class _BoxOfficeListScreenState extends State<BoxOfficeListScreen> {
                       left: 8.0,
                       top: (Theme.of(context).appBarTheme.toolbarHeight ?? 40) +
                           10),
-                  child: Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      const Text('Sort by'),
-                      ...sorts
-                          .map((e) => Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _sort = e;
-                                    final index = sorts.indexOf(e);
-                                    if (index == 0) {
-                                      boxOfficeBeans.sort(((a, b) =>
-                                          -(findNumberInString(
-                                                      a.weekend ?? '') ??
-                                                  0.0)
-                                              .compareTo(findNumberInString(
-                                                      b.weekend ?? '') ??
-                                                  0.0)));
-                                    } else if (index == 1) {
-                                      boxOfficeBeans.sort(((a, b) =>
-                                          -(findNumberInString(a.gross ?? '') ??
-                                                  0.0)
-                                              .compareTo(findNumberInString(
-                                                      b.gross ?? '') ??
-                                                  0.0)));
-                                    } else {
-                                      boxOfficeBeans.sort(((a, b) =>
-                                          -(findNumberInString(a.weeks ?? '') ??
-                                                  0.0)
-                                              .compareTo(findNumberInString(
-                                                      b.weeks ?? '') ??
-                                                  0.0)));
-                                    }
-                                    setState(() {});
-                                  },
-                                  child: Chip(
-                                      side: _sort == e
-                                          ? BorderSide(color: imdbYellow)
-                                          : null,
-                                      label: Text(
-                                        e,
-                                        style: TextStyle(
-                                            fontWeight: _sort == e
-                                                ? FontWeight.bold
-                                                : null),
-                                      )),
-                                ),
-                              ))
-                          .toList(),
-                    ],
+                  child: SingleChildScrollView(
+                    child: Row(
+                      // crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text('Sort by'),
+                        ...sorts
+                            .map((e) => Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _sort = e;
+                                        final index = sorts.indexOf(e);
+                                        if (index == 0) {
+                                          boxOfficeBeans.sort(((a, b) =>
+                                              -(findNumberInString(
+                                                          a.weekend ?? '') ??
+                                                      0.0)
+                                                  .compareTo(findNumberInString(
+                                                          b.weekend ?? '') ??
+                                                      0.0)));
+                                        } else if (index == 1) {
+                                          boxOfficeBeans.sort(((a, b) =>
+                                              -(findNumberInString(
+                                                          a.gross ?? '') ??
+                                                      0.0)
+                                                  .compareTo(findNumberInString(
+                                                          b.gross ?? '') ??
+                                                      0.0)));
+                                        } else {
+                                          boxOfficeBeans.sort(((a, b) =>
+                                              -(findNumberInString(
+                                                          a.weeks ?? '') ??
+                                                      0.0)
+                                                  .compareTo(findNumberInString(
+                                                          b.weeks ?? '') ??
+                                                      0.0)));
+                                        }
+                                        setState(() {});
+                                      },
+                                      child: Chip(
+                                          side: _sort == e
+                                              ? BorderSide(color: imdbYellow)
+                                              : null,
+                                          label: Text(
+                                            e,
+                                            style: TextStyle(
+                                                fontWeight: _sort == e
+                                                    ? FontWeight.bold
+                                                    : null),
+                                          )),
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                      ],
+                    ),
                   ),
                 ),
               ),

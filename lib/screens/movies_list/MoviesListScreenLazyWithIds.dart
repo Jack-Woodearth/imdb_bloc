@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:imdb_bloc/screens/movies_list/movies_list.dart';
+import 'package:imdb_bloc/utils/debug_utils.dart';
 
 import '../../apis/apis.dart';
 import '../../beans/new_list_result_resp.dart';
@@ -21,11 +24,13 @@ class _MoviesListScreenLazyWithIdsState
     extends State<MoviesListScreenLazyWithIds> {
   late final count = widget.movieIds.length;
   late final idsCopy = widget.movieIds.toList();
-  late var batch = firstNOfList(idsCopy, 20);
+  int moviesLoaded = 0;
   Future<NewMovieListRespResult?> future() async {
-    var newMovieListRespResult = await getNewListMoviesApi(mids: batch);
-    extractFirstNOfList(idsCopy, batch.length);
+    var batch =
+        idsCopy.sublist(moviesLoaded, min(moviesLoaded + 20, idsCopy.length));
 
+    var newMovieListRespResult = await getNewListMoviesApi(mids: batch);
+    moviesLoaded = newMovieListRespResult?.movies?.length ?? 0;
     return newMovieListRespResult;
   }
 
@@ -44,10 +49,15 @@ class _MoviesListScreenLazyWithIdsState
                 title: widget.name,
                 newMovieListRespResult: snapshot.data!..count = count,
                 onScrollEnd: () async {
-                  var batch2 = firstNOfList(idsCopy, 20);
+                  var batch2 = idsCopy.sublist(
+                      moviesLoaded, min(moviesLoaded + 20, idsCopy.length));
+                  dp('batch2=$batch2');
+
                   var newMovieListRespResult =
                       await getNewListMoviesApi(mids: batch2);
-                  extractFirstNOfList(idsCopy, batch2.length);
+                  moviesLoaded = snapshot.data?.movies?.length ?? 0;
+
+                  dp('onScrollEnd idsCopy.length1= ${idsCopy.length}');
                   if (newMovieListRespResult != null) {
                     snapshot.data?.movies?.addAll(
                         newMovieListRespResult.movies ?? <MovieOfList?>[]);
