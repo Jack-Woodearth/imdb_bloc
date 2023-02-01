@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:imdb_bloc/screens/video/video_tab.dart';
 import 'package:imdb_bloc/utils/colors.dart';
 import 'package:imdb_bloc/widget_methods/widget_methods.dart';
 
@@ -184,7 +185,16 @@ class HomeTopSlider extends StatelessWidget {
                       options: CarouselOptions(
                           autoPlay: true, viewportFraction: 1.0))),
             InkWell(
-              onTap: () {},
+              onTap: () {
+                pushRoute(
+                    context: context,
+                    screen: Scaffold(
+                      appBar: AppBar(
+                        title: const Text('Trailers'),
+                      ),
+                      body: const VideoTab(),
+                    ));
+              },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(

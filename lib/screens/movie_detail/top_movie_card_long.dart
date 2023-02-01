@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -535,47 +536,48 @@ class _MovieDetailTopCardLongMultiSliversState
   }
 
   Widget _addToWatchListButton(BuildContext context) {
+    var animatedSwitcher = AnimatedSwitcher(
+      switchInCurve: Curves.easeIn,
+      switchOutCurve: Curves.easeOut,
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          BlocBuilder<UserWatchListCubit, UserWatchListState>(
+            builder: (context, state) {
+              return Text(
+                '${state.ids.contains(widget.movieBean.id) ? 'Remove from' : 'Add to'} Watchlist',
+                style: TextStyle(color: Colors.blue[800]),
+                key: ValueKey(widget.movieBean.id!),
+              );
+            },
+          ),
+        ],
+      ),
+    );
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
       transitionBuilder: (child, animation) => FadeTransition(
         opacity: animation,
         child: child,
       ),
-      child: CupertinoButton.filled(
-        key: ValueKey(widget.movieBean.id!),
-        onPressed: () {
-          handleUpdateWatchListOrFavPeople(widget.movieBean.id!, context);
-        },
-        // style: ElevatedButton.styleFrom(
-        //   backgroundColor: Get.find<UserWatchListController>()
-        //           .inWatchList(widget.movieBean.id!)
-        //       ? imdbYellow
-        //       : Theme.of(context).scaffoldBackgroundColor,
-        // ),
-        child: AnimatedSwitcher(
-          switchInCurve: Curves.easeIn,
-          switchOutCurve: Curves.easeOut,
-          duration: const Duration(milliseconds: 500),
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              BlocBuilder<UserWatchListCubit, UserWatchListState>(
-                builder: (context, state) {
-                  return Text(
-                    '${state.ids.contains(widget.movieBean.id) ? 'Remove from' : 'Add to'} Watchlist',
-                    style: TextStyle(color: Colors.blue[800]),
-                    key: ValueKey(widget.movieBean.id!),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: Platform.isIOS || Platform.isMacOS
+          ? CupertinoButton.filled(
+              key: ValueKey(widget.movieBean.id!),
+              onPressed: () {
+                handleUpdateWatchListOrFavPeople(widget.movieBean.id!, context);
+              },
+              child: animatedSwitcher,
+            )
+          : ElevatedButton(
+              onPressed: () {
+                handleUpdateWatchListOrFavPeople(widget.movieBean.id!, context);
+              },
+              child: animatedSwitcher),
     );
   }
 

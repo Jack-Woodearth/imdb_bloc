@@ -102,7 +102,7 @@ class StackedPictures extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       LayoutBuilder(builder: (context, constr) {
-                        dp('constr.maxWidth=${constr.maxWidth}');
+                        // dp('constr.maxWidth=${constr.maxWidth}');
                         return SizedBox(
                           height: double.infinity,
                           child: MyNetworkImage(

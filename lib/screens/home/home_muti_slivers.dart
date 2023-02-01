@@ -140,13 +140,13 @@ class HomeMultiSlivers {
               // pageGetxControllerId: homeResp!.result!.lists!.indexOf(list),
             ));
           }, childCount: homeResp!.result!.lists!.length)),
-        MultiSliver(children: [
-          TitleAndSeeAll(
-            title: 'Top news',
-            onTap: () {},
-          ),
-          (NewsListScroll(newsList: newsList))
-        ])
+        // MultiSliver(children: [
+        //   TitleAndSeeAll(
+        //     title: 'Top news',
+        //     onTap: () {},
+        //   ),
+        //   (NewsListScroll(newsList: newsList))
+        // ])
       ],
     );
   }

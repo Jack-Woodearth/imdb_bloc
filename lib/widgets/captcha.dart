@@ -29,6 +29,7 @@ class _CaptchaWidgetState extends State<CaptchaWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         FutureBuilder(
           future: getCaptcha(),
@@ -51,8 +52,22 @@ class _CaptchaWidgetState extends State<CaptchaWidget> {
               setState(() {});
             },
             icon: const Icon(Icons.refresh)),
-        TextField(
-          onChanged: (value) => captchaCode = value,
+        Row(
+          children: [
+            const Expanded(
+              child: SizedBox(),
+            ),
+            Expanded(
+              flex: 2,
+              child: TextField(
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                onChanged: (value) => captchaCode = value,
+              ),
+            ),
+            const Expanded(
+              child: SizedBox(),
+            ),
+          ],
         ),
         TextButton(
             onPressed: () async {

@@ -77,11 +77,12 @@ class _SignInInputsState extends State<SignInInputs> {
   late final data = widget.data;
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Column(
-          children: [
-            TextFormField(
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextFormField(
               initialValue: data.username,
               validator: (value) => value?.isValidUsername() == true
                   ? null
@@ -101,7 +102,10 @@ class _SignInInputsState extends State<SignInInputs> {
                 dp('data.username=${data.username}');
               },
             ),
-            StatefulBuilder(builder: (context, update) {
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: StatefulBuilder(builder: (context, update) {
               return TextFormField(
                 initialValue: data.password,
                 // name: 'Password',
@@ -115,8 +119,8 @@ class _SignInInputsState extends State<SignInInputs> {
                   border: const OutlineInputBorder(),
                   labelText: 'Password',
                   suffixIcon: InkWell(
-                    child: const Icon(
-                      Icons.password,
+                    child: Icon(
+                      !_showPassword ? Icons.password : Icons.remove_red_eye,
                     ),
                     onTap: () {
                       update(
@@ -129,13 +133,16 @@ class _SignInInputsState extends State<SignInInputs> {
                 ),
               );
             }),
-            BlocBuilder<SignInCubit, SignInState>(
-              builder: (context, state) {
-                return AnimatedSize(
-                  duration: const Duration(milliseconds: 200),
-                  child: state.isLogin
-                      ? const SizedBox()
-                      : StatefulBuilder(builder: (context, update) {
+          ),
+          BlocBuilder<SignInCubit, SignInState>(
+            builder: (context, state) {
+              return AnimatedSize(
+                duration: const Duration(milliseconds: 200),
+                child: state.isLogin
+                    ? const SizedBox()
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: StatefulBuilder(builder: (context, update) {
                           return TextFormField(
                             initialValue: '',
                             onChanged: (v) {
@@ -149,8 +156,10 @@ class _SignInInputsState extends State<SignInInputs> {
                               border: const OutlineInputBorder(),
                               labelText: 'Password confirmation',
                               suffixIcon: InkWell(
-                                child: const Icon(
-                                  Icons.password,
+                                child: Icon(
+                                  !_showPasswordConfirmation
+                                      ? Icons.password
+                                      : Icons.remove_red_eye,
                                 ),
                                 onTap: () {
                                   update(
@@ -164,15 +173,18 @@ class _SignInInputsState extends State<SignInInputs> {
                             ),
                           );
                         }),
-                );
-              },
-            ),
-            BlocBuilder<SignInCubit, SignInState>(builder: (context, state) {
-              return AnimatedSize(
-                duration: const Duration(milliseconds: 200),
-                child: state.isLogin
-                    ? const SizedBox()
-                    : StatefulBuilder(builder: (context, update) {
+                      ),
+              );
+            },
+          ),
+          BlocBuilder<SignInCubit, SignInState>(builder: (context, state) {
+            return AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              child: state.isLogin
+                  ? const SizedBox()
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: StatefulBuilder(builder: (context, update) {
                         return TextFormField(
                           initialValue: data.email,
                           validator: (value) =>
@@ -223,38 +235,33 @@ class _SignInInputsState extends State<SignInInputs> {
                           },
                         );
                       }),
-              );
-            }),
-            BlocBuilder<SignInCubit, SignInState>(builder: (context, state) {
-              return AnimatedSize(
-                duration: const Duration(milliseconds: 200),
-                child: state.isLogin
-                    ? const SizedBox()
-                    : TextFormField(
-                        initialValue: '',
-                        validator: (value) => notBlank(value)
-                            ? null
-                            : 'Email verification code is empty',
-                        // name: 'Username',
-                        decoration: const InputDecoration(
-                          suffixIcon: Icon(Icons.email),
-                          border: OutlineInputBorder(),
-                          labelText: 'Email verification code',
-                        ),
-                        onChanged: (v) {
-                          data.verifyCode = v;
-                        },
+                    ),
+            );
+          }),
+          BlocBuilder<SignInCubit, SignInState>(builder: (context, state) {
+            return AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              child: state.isLogin
+                  ? const SizedBox()
+                  : TextFormField(
+                      initialValue: '',
+                      validator: (value) => notBlank(value)
+                          ? null
+                          : 'Email verification code is empty',
+                      // name: 'Username',
+                      decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.email),
+                        border: OutlineInputBorder(),
+                        labelText: 'Email verification code',
                       ),
-              );
-            })
-          ]
-              .map((e) => Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: e,
-                  ))
-              .toList(),
-        )
-      ],
+                      onChanged: (v) {
+                        data.verifyCode = v;
+                      },
+                    ),
+            );
+          })
+        ],
+      ),
     );
   }
 }

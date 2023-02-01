@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    dp('HomeScreen build');
+    // dp('HomeScreen build');
     return WillPopScope(
       onWillPop: (() async {
         await showConfirmDialog(context, 'Exit Imdb?', () {
